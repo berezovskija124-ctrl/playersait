@@ -3,359 +3,860 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#12132a">
-<style>html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
-<title>Плеер Glass</title>
-<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="theme-color" content="#151515">
+<meta name="description" content="Офлайн-плеер 2.0: плеер для музыки, которая уже лежит у вас в телефоне. Подборки, жесты, очередь, пластинка, таймер сна, эквалайзер и установка без магазина.">
+<meta property="og:title" content="Офлайн-плеер 2.0">
+<meta property="og:description" content="Плеер для музыки, которая уже лежит у вас в телефоне. Работает без интернета.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='31' fill='%23151515'/%3E%3Ccircle cx='32' cy='32' r='23' fill='none' stroke='%23333' stroke-width='2'/%3E%3Ccircle cx='32' cy='32' r='12' fill='%23FFC83D'/%3E%3Ccircle cx='32' cy='32' r='3' fill='%23151515'/%3E%3C/svg%3E">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
+<title>Офлайн-плеер 2.0</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Unbounded:wght@500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,700;1,700&family=Golos+Text:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;700&display=swap">
 <style>
-/* Layout: тёмная стеклянная страница; герой с телефоном-макетом слева направо, затем фишки, форматы, установка по вкладкам, FAQ */
+/* Layout: сайт-альбом. Каждая цветная полоса — «трек» (раздел презентации), внутри колонка до 1200px.
+   Один зафиксированный вид (цвета пластинки), без отдельной тёмной темы: разделы сами чередуют светлое и тёмное. */
 :root{
-  --bg:#f3f2fa;--fg:#14142a;--mute:#5b5b78;--line:rgba(20,20,42,.12);
-  --glass:rgba(255,255,255,.62);--glass2:rgba(255,255,255,.35);--accent:#ff4fa3;--accent2:#4f86ff;--teal:#16b894;--btn:#14142a;--btnfg:#fff;
-  --blob1:rgba(255,111,181,.35);--blob2:rgba(79,134,255,.3);--blob3:rgba(47,216,176,.28);
-  --display:'Unbounded','Arial Black',sans-serif;--body:'Manrope','Segoe UI',Arial,sans-serif;
+  --ink:#151515; --ink2:#24201d; --paper:#F3ECDD; --paper2:#FBF7EE;
+  --red:#FF4A1C; --blue:#2437FF; --sun:#FFC83D; --green:#1FA37A;
+  --brown:#5A5145; --dust:#B9B09E; --rust:#4A1608; --lilac:#C9CEFF; --honey:#5A4510;
+  --display:'PT Serif','Times New Roman',Times,serif;
+  --body:'Golos Text',Arial,Helvetica,sans-serif;
+  --mono:'IBM Plex Mono','Courier New',monospace;
+  --ease:cubic-bezier(.2,.8,.2,1);
+  color-scheme:light;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#12132a;--fg:#f4f4ff;--mute:#a4a6c8;--line:rgba(255,255,255,.14);
-  --glass:rgba(255,255,255,.1);--glass2:rgba(255,255,255,.06);--accent:#ff6fb5;--accent2:#6b9bff;--teal:#2fd8b0;--btn:#fff;--btnfg:#14142a;
-  --blob1:rgba(255,111,181,.4);--blob2:rgba(79,134,255,.38);--blob3:rgba(47,216,176,.3);color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#12132a;--fg:#f4f4ff;--mute:#a4a6c8;--line:rgba(255,255,255,.14);
-  --glass:rgba(255,255,255,.1);--glass2:rgba(255,255,255,.06);--accent:#ff6fb5;--accent2:#6b9bff;--teal:#2fd8b0;--btn:#fff;--btnfg:#14142a;
-  --blob1:rgba(255,111,181,.4);--blob2:rgba(79,134,255,.38);--blob3:rgba(47,216,176,.3);color-scheme:dark}
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.6;padding-block:0;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));position:relative;overflow-x:hidden}
-.blobs{position:fixed;inset:0;z-index:0;pointer-events:none;background:
- radial-gradient(60vw 60vw at 8% 6%,var(--blob1),transparent 70%),
- radial-gradient(55vw 55vw at 95% 25%,var(--blob2),transparent 70%),
- radial-gradient(60vw 60vw at 30% 100%,var(--blob3),transparent 70%)}
-.wrap{max-width:1120px;margin:0 auto;position:relative;z-index:1}
+html{scroll-behavior:smooth;scroll-padding-top:calc(64px + env(safe-area-inset-top,0px))}
+body{background:var(--ink);color:var(--ink);font:400 18px/1.55 var(--body);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:40;background:var(--ink)}
+img{display:block;max-width:100%;height:auto}
 a{color:inherit}
-:focus-visible{outline:2px solid var(--accent2);outline-offset:3px;border-radius:8px}
-html{scroll-behavior:smooth}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
-section,#top{scroll-margin-top:calc(86px + env(safe-area-inset-top,0px))}
-body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:50;background:var(--bg)}
-.prog{position:fixed;left:0;top:env(safe-area-inset-top,0px);height:3px;width:100%;z-index:60;transform-origin:0 50%;transform:scaleX(0);background:linear-gradient(90deg,var(--accent),var(--accent2))}
-header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:40;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 18px;margin-top:10px;border-radius:22px;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);transition:box-shadow .3s}
-header.top.stuck{box-shadow:0 12px 40px -16px rgba(10,10,40,.45)}
-.brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:600;font-size:15px;text-decoration:none}
-.brand i{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center}
-.brand i::after{content:"";width:0;height:0;border-left:9px solid #fff;border-top:6px solid transparent;border-bottom:6px solid transparent;margin-left:2px}
-nav.links{display:flex;gap:4px;font-size:14px;color:var(--mute)}
-nav.links a{text-decoration:none;padding:8px 14px;border-radius:12px;transition:background .25s,color .25s}
-nav.links a:hover{color:var(--fg);background:var(--glass2)}
-nav.links a.act{color:var(--fg);background:var(--glass2);box-shadow:inset 0 0 0 1px var(--line)}
-@media(max-width:760px){
-  header.top{flex-wrap:wrap;padding:12px 14px}
-  nav.links{order:3;width:100%;overflow-x:auto;scrollbar-width:none;margin-inline:-4px;padding-bottom:2px}
-  nav.links::-webkit-scrollbar{display:none}
-  nav.links a{white-space:nowrap;flex:none}
-  header.top{padding:10px 12px;gap:8px;border-radius:18px}
-  header.top .btn.sm{padding:8px 14px;font-size:13px;border-radius:12px}
-  .brand{font-size:14px}.brand i{width:26px;height:26px}
-  nav.links a{padding:6px 12px;font-size:13px}
-  body{font-size:14px}.lead{font-size:16px}.sub{font-size:15px}
-  section{padding-block:44px}.hero{padding-block:24px 48px}
-  .phone{width:min(260px,100%)}.card{padding:20px}.panel{padding:22px}
-  .btn{padding:12px 20px}
-  section,#top{scroll-margin-top:calc(128px + env(safe-area-inset-top,0px))}
-}
-.btn{transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s,background .25s;display:inline-flex;align-items:center;gap:10px;padding:14px 24px;border-radius:16px;background:var(--btn);color:var(--btnfg);font-weight:700;text-decoration:none;border:0;cursor:pointer;font:inherit;font-weight:700}
-.btn:hover{transform:translateY(-2px);box-shadow:0 12px 28px -12px rgba(255,79,163,.55)}.btn:active{transform:translateY(0) scale(.98)}
-.btn.ghost{background:var(--glass);color:var(--fg);border:1px solid var(--line);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
-.btn.sm{padding:10px 18px;border-radius:14px;font-size:14px}
-.glass{background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-radius:26px}
-/* hero */
-.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center;padding-block:40px 72px}
-@media(max-width:900px){.hero{grid-template-columns:1fr;gap:40px;padding-top:16px}}
-.tag{display:inline-block;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);border:1px solid var(--line);border-radius:99px;padding:6px 14px;background:var(--glass2)}
-h1{font-family:var(--display);font-weight:600;font-size:clamp(34px,6vw,64px);line-height:1.08;margin:20px 0 20px;text-wrap:balance;letter-spacing:-.02em}
-h1 em{font-style:normal;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
-.lead{font-size:18px;color:var(--mute);max-width:520px;margin:0 0 30px}
-.cta{display:flex;flex-wrap:wrap;gap:12px}
-.facts{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:30px;font-size:14px;color:var(--mute);padding:0;list-style:none}
-.facts li::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--teal);margin-right:8px}
-/* phone mock */
-.phone{width:min(300px,100%);aspect-ratio:380/700;margin:0 auto;border-radius:44px;padding:14px;background:linear-gradient(160deg,#2a2c4d,#0e0f22);box-shadow:0 40px 80px -20px rgba(10,10,40,.55);position:relative}
-.screen{height:100%;border-radius:32px;overflow:hidden;position:relative;background:#171830;color:#fff;padding:20px 16px}
-.screen::before{content:"";position:absolute;inset:0;background:radial-gradient(70% 40% at 15% 10%,rgba(255,111,181,.45),transparent 70%),radial-gradient(60% 40% at 95% 30%,rgba(79,134,255,.45),transparent 70%),radial-gradient(70% 40% at 40% 100%,rgba(47,216,176,.35),transparent 70%)}
-.screen>*{position:relative}
-.m-title{font-family:var(--display);font-size:20px;font-weight:600;margin:6px 0 2px}
-.m-sub{font-size:11px;opacity:.6;margin-bottom:14px}
-.m-pill{display:flex;gap:8px;margin-bottom:12px}
-.m-pill span{padding:8px 14px;border-radius:12px;font-size:11px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22)}
-.m-pill span:first-child{background:#fff;color:#14142a;font-weight:700}
-.m-list{border-radius:18px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);padding:6px}
-.m-row{display:flex;align-items:center;gap:10px;padding:7px;border-radius:12px;font-size:12px}
-.m-row.on{background:rgba(255,255,255,.14)}
-.m-row b{display:block;font-weight:600}.m-row small{opacity:.6;font-size:10px}
-.m-row .c{width:34px;height:34px;border-radius:10px;flex:none}
-.m-row .t{margin-left:auto;opacity:.6;font-size:10px}
-.m-mini{position:absolute!important;left:12px;right:12px;bottom:14px;border-radius:18px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);padding:10px;display:flex;align-items:center;gap:10px;font-size:12px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
-.m-mini .c{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#ff6fb5,#6b4bff)}
-.m-mini .bar{position:absolute;left:12px;right:12px;bottom:6px;height:3px;border-radius:3px;background:rgba(255,255,255,.25)}
-.m-mini .bar i{display:block;width:42%;height:100%;border-radius:3px;background:#fff}
-.eq{display:flex;gap:3px;align-items:flex-end;height:16px}
-.eq i{width:3px;background:#fff;border-radius:2px;animation:eq 1s ease-in-out infinite}
-.eq i:nth-child(2){animation-delay:.2s}.eq i:nth-child(3){animation-delay:.4s}
-@keyframes eq{0%,100%{height:4px}50%{height:15px}}
-@media(prefers-reduced-motion:reduce){.eq i{animation:none;height:10px}}
-/* sections */
-section{padding-block:64px}
-.kicker{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:700;margin:0 0 12px}
-h2{font-family:var(--display);font-weight:600;font-size:clamp(26px,4vw,40px);line-height:1.15;margin:0 0 16px;text-wrap:balance;letter-spacing:-.01em}
-.sub{color:var(--mute);max-width:620px;margin:0 0 36px;font-size:17px}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:560px){.grid{grid-template-columns:1fr}}
-.card{padding:26px;min-width:0;transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s}
-.card:hover,.pro:hover{transform:translateY(-4px);box-shadow:0 20px 40px -22px rgba(10,10,40,.5)}
-.pro{transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s}
-.card h3{font-size:18px;margin:14px 0 8px;line-height:1.3}
-.card p{margin:0;color:var(--mute);font-size:15px}
-.ic{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
-.ic svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.pros{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-@media(max-width:760px){.pros{grid-template-columns:1fr}}
-.pro{display:flex;gap:16px;padding:22px 24px;align-items:flex-start}
-.pro b{font-family:var(--display);font-size:28px;line-height:1;min-width:84px;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:600}
-.pro p{margin:0;color:var(--mute);font-size:15px}.pro strong{color:var(--fg);display:block;margin-bottom:2px}
-.chips{display:flex;flex-wrap:wrap;gap:10px}
-.chip{padding:10px 18px;border-radius:14px;font-weight:600;font-size:14px;border:1px solid var(--line);background:var(--glass2)}
-[data-r]{transform:translateY(28px);transition:transform .8s cubic-bezier(.2,.8,.2,1)}
-[data-r].in{transform:none}
-.phone{animation:float 7s ease-in-out infinite}
-@keyframes float{0%,100%{translate:0 0}50%{translate:0 -10px}}
-@media(prefers-reduced-motion:reduce){[data-r]{transform:none;transition:none}.phone{animation:none}}
-.panel{animation:swap .45s cubic-bezier(.2,.8,.2,1)}
-@keyframes swap{from{transform:translateY(14px);opacity:.01}to{transform:none;opacity:1}}
-.tabs{position:relative}
-.totop{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));width:48px;height:48px;border-radius:16px;border:1px solid var(--line);background:var(--glass);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);color:var(--fg);cursor:pointer;z-index:40;display:grid;place-items:center;transform:translateY(90px);transition:transform .4s cubic-bezier(.2,.8,.2,1)}
-.totop.show{transform:none}
-.totop svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
-details>p{animation:swap .35s ease}
-/* install */
-.tabs{display:inline-flex;gap:6px;padding:6px;margin-bottom:22px;flex-wrap:wrap}
-.tabs button{border:0;background:transparent;color:var(--fg);font:inherit;font-weight:600;font-size:15px;padding:10px 20px;border-radius:18px;cursor:pointer}
-.tabs button[aria-selected="true"]{background:var(--btn);color:var(--btnfg)}
-.panel{padding:30px}
-.panel[hidden]{display:none}
-.steps{margin:0;padding:0;list-style:none;display:grid;gap:18px;counter-reset:s}
-.steps li{display:grid;grid-template-columns:40px 1fr;gap:16px;align-items:start;counter-increment:s}
-.steps li::before{content:counter(s);width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-size:15px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
-.steps b{display:block;font-size:17px}
-.steps span{color:var(--mute);font-size:15px}
-.note{margin-top:22px;padding:14px 18px;border-radius:16px;background:var(--glass2);border:1px solid var(--line);font-size:14px;color:var(--mute)}
-.note b{color:var(--fg)}
-.urlbox{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:22px}
-.urlbox code{flex:1 1 260px;min-width:0;overflow-x:auto;white-space:nowrap;padding:12px 16px;border-radius:14px;border:1px solid var(--line);background:var(--glass2);font-size:14px}
-/* faq */
-details{padding:0;margin-bottom:12px}
-summary{cursor:pointer;list-style:none;padding:20px 24px;font-weight:700;font-size:16px;display:flex;justify-content:space-between;gap:16px;align-items:center}
-summary::-webkit-details-marker{display:none}
-summary::after{content:"+";font-size:24px;line-height:1;color:var(--accent);transition:transform .2s}
-details[open] summary::after{transform:rotate(45deg)}
-details p{margin:0;padding:0 24px 22px;color:var(--mute);font-size:15px}
-.final{text-align:center;padding:48px 24px}
-.final h2{margin-inline:auto;max-width:620px}
-.final .sub{margin-inline:auto}
-.final .cta{justify-content:center}
-footer{padding-block:36px 48px;color:var(--mute);font-size:14px;display:flex;flex-wrap:wrap;gap:12px 24px;justify-content:space-between}
-footer a{text-decoration:none;border-bottom:1px solid var(--line)}
-</style>
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--sun);outline-offset:3px;border-radius:6px}
+h1,h2,h3{font-family:var(--display);font-weight:700;margin:0;text-wrap:balance}
+p{margin:0}
+.wrap{max-width:1240px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+@media(min-width:760px){.wrap{padding-left:max(40px,env(safe-area-inset-left,0px));padding-right:max(40px,env(safe-area-inset-right,0px))}}
+.band{position:relative;overflow:hidden;padding-block:clamp(72px,10vw,128px)}
+.b-red{background:var(--red);color:var(--ink)}
+.b-paper{background:var(--paper);color:var(--ink)}
+.b-ink{background:var(--ink);color:var(--paper)}
+.b-blue{background:var(--blue);color:var(--paper)}
+.b-sun{background:var(--sun);color:var(--ink)}
+h2{font-size:clamp(40px,6.2vw,76px);line-height:1.02;letter-spacing:-.01em}
+h2 em{font-style:italic}
+h3{font-size:clamp(23px,2.3vw,30px);line-height:1.15}
+.kicker{font:700 13px/1.3 var(--mono);letter-spacing:.16em;text-transform:uppercase}
+.lead{font-size:clamp(19px,1.9vw,23px);line-height:1.5}
+.muted-p{color:var(--brown)} .muted-i{color:var(--dust)} .muted-b{color:var(--lilac)} .muted-r{color:var(--rust)} .muted-s{color:var(--honey)}
+.sec-head{display:grid;gap:18px;margin-bottom:clamp(36px,5vw,64px);max-width:920px}
 
+/* ---------- верхняя панель ---------- */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:var(--ink);color:var(--paper)}
+.nav .wrap{display:flex;align-items:center;gap:18px;height:62px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font:700 19px/1 var(--display);white-space:nowrap}
+.brand-disc{width:30px;height:30px;border-radius:50%;background:radial-gradient(circle,var(--red) 0 18%,var(--ink) 19% 24%,transparent 25%),repeating-radial-gradient(circle,#2b2b2b 0 1.5px,#121212 1.5px 3px);box-shadow:0 0 0 1.5px var(--paper);transform:rotate(var(--rot,0deg))}
+.brand-disc::after{content:"";display:block;width:100%;height:100%;border-radius:50%;background:conic-gradient(from 20deg,transparent 0 10%,rgba(255,255,255,.22) 14%,transparent 20% 60%,rgba(255,255,255,.12) 66%,transparent 72%)}
+.links{display:flex;gap:4px;margin-left:auto;overflow-x:auto;scrollbar-width:none}
+.links::-webkit-scrollbar{display:none}
+.links a{font:500 15px/1 var(--body);text-decoration:none;padding:10px 12px;border-radius:999px;white-space:nowrap;color:var(--dust);transition:color .2s,background .2s}
+.links a:hover,.links a.on{color:var(--paper);background:rgba(243,236,221,.1)}
+.nav .btn{flex:none}
+.progress{position:absolute;left:0;right:0;bottom:-3px;height:3px;background:var(--sun);transform-origin:0 50%;transform:scaleX(var(--p,0))}
+@media(max-width:899px){.links{display:none}.nav .btn{margin-left:auto}}
+
+/* ---------- кнопки ---------- */
+.btn{display:inline-flex;align-items:center;gap:10px;font:600 16px/1 var(--body);text-decoration:none;padding:15px 22px;border-radius:999px;border:2.5px solid currentColor;background:transparent;transition:transform .25s var(--ease),background .2s,color .2s,box-shadow .25s var(--ease)}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:translateY(0) scale(.98)}
+.btn-ink{background:var(--ink);border-color:var(--ink);color:var(--paper);box-shadow:5px 5px 0 rgba(21,21,21,.25)}
+.btn-ink:hover{box-shadow:7px 7px 0 rgba(21,21,21,.3)}
+.btn-sun{background:var(--sun);border-color:var(--sun);color:var(--ink);padding:11px 18px;font-size:15px}
+.btn svg{width:18px;height:18px;flex:none}
+
+/* ---------- 1. обложка ---------- */
+.hero{padding-block:clamp(56px,7vw,96px) clamp(64px,8vw,110px)}
+.hero-grid{display:grid;grid-template-columns:1fr;gap:40px;align-items:center}
+@media(min-width:900px){.hero-grid{grid-template-columns:1.05fr .95fr}}
+.hero h1{font-size:clamp(76px,13vw,168px);line-height:.9;letter-spacing:-.02em;margin:22px 0 30px}
+.hero h1 em{color:var(--paper);position:relative;display:inline-block}
+.hero h1 em img{position:absolute;left:-2%;bottom:-.1em;width:104%;clip-path:inset(0 100% 0 0);animation:draw 1.1s .5s var(--ease) forwards}
+@keyframes draw{to{clip-path:inset(0 0 0 0)}}
+.hero .lead{max-width:30ch;font-size:clamp(21px,2.2vw,27px)}
+.hero-cta{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-top:34px}
+.tag{font:700 14px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;background:var(--ink);color:var(--paper);padding:13px 18px;border-radius:999px}
+.turntable{position:relative;width:min(100%,560px);aspect-ratio:1;justify-self:center}
+.turntable .disc{width:100%;height:100%;animation:spin 7s linear infinite;filter:drop-shadow(0 30px 40px rgba(74,22,8,.35))}
+.turntable .arm{position:absolute;right:-4%;top:-6%;width:24%;transform-origin:72% 12%;transform:rotate(-34deg);animation:armdown 1.4s .4s var(--ease) forwards;overflow:visible;filter:drop-shadow(0 6px 6px rgba(0,0,0,.35))}
+@keyframes armdown{to{transform:rotate(4deg)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ---------- общие рамки скриншотов ---------- */
+.phone{position:relative;width:100%;max-width:310px;aspect-ratio:390/844;border:7px solid var(--ink);border-radius:38px;overflow:hidden;background:#101014;box-shadow:0 24px 50px rgba(0,0,0,.25)}
+.b-ink .phone{border-color:#000;box-shadow:0 0 0 2px #3a3530,0 24px 50px rgba(0,0,0,.5)}
+.phone>img{width:100%;height:100%;object-fit:cover}
+.browser{position:relative;border:6px solid var(--ink);border-top-width:0;border-radius:18px;overflow:hidden;background:var(--ink);box-shadow:0 30px 60px rgba(0,0,0,.18)}
+.browser::before{content:"";display:block;height:34px;background:radial-gradient(circle at 22px 50%,var(--red) 6px,transparent 7px),radial-gradient(circle at 44px 50%,var(--sun) 6px,transparent 7px),radial-gradient(circle at 66px 50%,var(--green) 6px,transparent 7px),var(--ink)}
+.screen{position:relative}
+.screen>img{width:100%}
+.mark{position:absolute;pointer-events:none}
+.cap{font:700 12px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;text-align:center;margin-top:14px}
+
+/* ---------- 2. почему ---------- */
+.why-grid{display:grid;gap:36px;align-items:start}
+@media(min-width:900px){.why-grid{grid-template-columns:1.1fr .9fr;gap:64px}}
+.why-text{display:grid;gap:22px;font-size:clamp(19px,1.8vw,22px);max-width:60ch}
+.card{background:var(--paper2);border:2.5px solid var(--ink);border-radius:22px;padding:clamp(24px,3vw,40px);box-shadow:8px 8px 0 var(--ink)}
+.conds{list-style:none;margin:22px 0 0;padding:0;display:grid;gap:22px}
+.conds li{display:grid;grid-template-columns:52px 1fr;gap:14px;align-items:center;font-size:clamp(19px,1.8vw,22px);line-height:1.35}
+.conds img{width:52px}
+
+/* ---------- 3. 155 КБ ---------- */
+.size-num{font:700 clamp(110px,20vw,250px)/.85 var(--display);color:var(--sun);letter-spacing:-.03em;font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:.18em;flex-wrap:wrap}
+.size-num small{font-size:.62em}
+.size-sub{font:italic 700 clamp(30px,4vw,52px)/1.1 var(--display);margin:18px 0 clamp(40px,6vw,70px)}
+.bars{display:grid;gap:28px;max-width:1000px}
+.bar-row{display:grid;gap:10px}
+.bar-row .lbl{font-size:clamp(17px,1.6vw,20px)}
+.bar{position:relative;height:clamp(40px,4.4vw,56px);display:flex;align-items:center}
+.bar i{display:block;height:100%;transform-origin:0 50%}
+.bar b{font:700 clamp(16px,1.6vw,20px)/1 var(--mono);white-space:nowrap}
+.bar-1 i{width:3.8%;min-width:14px;background:var(--sun)} .bar-1 b{color:var(--sun);margin-left:18px}
+.bar-2 i{width:100%;background:var(--paper)} .bar-2 b{position:absolute;left:18px;color:var(--ink)}
+.size-note{margin-top:clamp(36px,5vw,56px);max-width:64ch;color:var(--dust);font-size:clamp(17px,1.6vw,20px)}
+.peek{position:absolute;pointer-events:none;opacity:.95}
+.peek-tr{width:clamp(260px,40vw,560px);right:calc(clamp(260px,40vw,560px) * -.35);top:calc(clamp(260px,40vw,560px) * -.4);animation:spin 18s linear infinite}
+
+/* ---------- 4. библиотека ---------- */
+.lib-grid{display:grid;gap:40px;align-items:center}
+@media(min-width:1000px){.lib-grid{grid-template-columns:1.55fr 1fr;gap:56px}}
+.points{display:grid;gap:28px}
+.points h3{color:var(--red)}
+.points p{margin-top:8px;font-size:clamp(17px,1.6vw,19px)}
+
+/* ---------- 5. жесты ---------- */
+.g-grid{display:grid;gap:32px;align-items:center}
+@media(min-width:1000px){.g-grid{grid-template-columns:1fr 330px 1fr}}
+.g-col{display:grid;gap:14px;align-content:center}
+.g-col.left{text-align:right}
+.gl{display:grid;gap:4px;text-align:inherit;background:transparent;border:2px solid transparent;border-radius:18px;padding:14px 18px;opacity:.55;transition:opacity .3s,background .3s,border-color .3s,transform .4s var(--ease)}
+.gl b{font:600 clamp(18px,1.7vw,21px)/1.25 var(--body)}
+.gl span{font-size:16px;color:var(--lilac)}
+.gl:hover{opacity:.85}
+.gl.on{opacity:1;background:rgba(243,236,221,.1);border-color:rgba(243,236,221,.35)}
+.g-col.left .gl.on{transform:translateX(-6px)} .g-col.right .gl.on{transform:translateX(6px)}
+.g-phone{justify-self:center}
+.ov{position:absolute;inset:0;pointer-events:none}
+.tap{position:absolute;width:21%;aspect-ratio:1;translate:-50% -50%;border-radius:50%;background:var(--sun);border:3px solid var(--ink);display:grid;place-items:center;font:700 15px/1 var(--mono);color:var(--ink);opacity:0;scale:.6;transition:opacity .25s,scale .3s var(--ease)}
+.tap::before,.tap::after{content:"";position:absolute;inset:-3px;border-radius:50%;border:3px solid var(--sun);opacity:0}
+.g-phone[data-g=left] .t-left,.g-phone[data-g=right] .t-right,.g-phone[data-g=center] .t-center{opacity:1;scale:1}
+.g-phone[data-g=left] .t-left::before,.g-phone[data-g=right] .t-right::before,.g-phone[data-g=center] .t-center::before{animation:ripple 1.1s .1s ease-out 2}
+.g-phone[data-g=left] .t-left::after,.g-phone[data-g=right] .t-right::after,.g-phone[data-g=center] .t-center::after{animation:ripple 1.1s .45s ease-out 2}
+@keyframes ripple{0%{opacity:.9;transform:scale(1)}100%{opacity:0;transform:scale(1.9)}}
+.t-left{left:21%;top:27%} .t-right{left:79%;top:27%} .t-center{left:50%;top:37.5%}
+.flash{position:absolute;top:31%;font:700 clamp(13px,1.4vw,16px)/1 var(--mono);background:var(--ink);color:var(--sun);padding:7px 10px;border-radius:999px;opacity:0;translate:-50% 0;transition:opacity .25s}
+.f-left{left:21%} .f-right{left:79%} .f-center{left:50%;top:42%}
+.g-phone[data-g=left] .f-left,.g-phone[data-g=right] .f-right,.g-phone[data-g=center] .f-center{opacity:1}
+.cover-hit{position:absolute;left:6.15%;top:9.19%;width:87.7%;height:40.5%;border-radius:8px}
+.g-phone .cover-move{position:absolute;left:6.15%;top:9.19%;width:87.7%;height:40.5%;border-radius:10px;overflow:hidden;opacity:0}
+.g-phone .cover-move img{width:100%;height:100%;object-fit:cover}
+.g-phone[data-g=swipe] .cover-move{opacity:1;animation:swipeL 1.6s .15s var(--ease) both}
+.g-phone[data-g=down] .cover-move{opacity:1;animation:swipeD 1.6s .15s var(--ease) both}
+@keyframes swipeL{0%{transform:none}45%{transform:translateX(-70%) rotate(-5deg);opacity:.25}55%{transform:translateX(60%);opacity:0}100%{transform:none;opacity:1}}
+@keyframes swipeD{0%{transform:none}50%{transform:translateY(40%);opacity:.3}51%{opacity:0;transform:translateY(-10%)}100%{transform:none;opacity:1}}
+.hand{position:absolute;width:15%;aspect-ratio:1;border-radius:50%;background:rgba(255,200,61,.9);border:3px solid var(--ink);opacity:0;translate:-50% -50%}
+.g-phone[data-g=swipe] .h-swipe{animation:handL 1.6s .15s var(--ease) both}
+.g-phone[data-g=down] .h-down{animation:handD 1.6s .15s var(--ease) both}
+.h-swipe{left:75%;top:42%} .h-down{left:50%;top:18%}
+@keyframes handL{0%{opacity:0;left:75%}12%{opacity:1}60%{opacity:1;left:22%}75%,100%{opacity:0;left:22%}}
+@keyframes handD{0%{opacity:0;top:18%}12%{opacity:1}60%{opacity:1;top:44%}75%,100%{opacity:0;top:44%}}
+.g-hint{font:700 12px/1.4 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--lilac);margin-top:28px;text-align:center}
+@media(max-width:999px){.g-col.left{text-align:left}.g-col.left .gl.on,.g-col.right .gl.on{transform:none}.g-phone{order:-1}}
+
+/* ---------- 6. очередь ---------- */
+.q-grid{display:grid;gap:40px;align-items:center}
+@media(min-width:1000px){.q-grid{grid-template-columns:auto 1fr;gap:64px}}
+.q-phones{display:flex;align-items:center;gap:clamp(14px,4vw,90px);position:relative}
+.q-phones .phone{max-width:280px;flex:1 1 0}
+.q-arrow{position:absolute;left:50%;top:20%;width:min(26%,170px);translate:-50% 0;pointer-events:none}
+.q-text{display:grid;gap:22px;max-width:52ch}
+.q-text .big{font:700 clamp(28px,3.2vw,40px)/1.15 var(--display)}
+.q-text p{font-size:clamp(18px,1.7vw,21px)}
+
+/* ---------- 7. пластинка ---------- */
+.v-grid{display:grid;gap:48px;align-items:center}
+@media(min-width:1000px){.v-grid{grid-template-columns:.95fr 1.05fr;gap:72px}}
+.tt{position:relative;width:min(100%,480px);aspect-ratio:1;justify-self:center}
+.vdisc{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle,transparent 0 32.4%,rgba(255,255,255,.07) 32.6% 33.2%,transparent 33.4% 64%,rgba(255,255,255,.05) 64.2% 64.8%,transparent 65%),repeating-radial-gradient(circle,#0b0b0d 0 1.4px,#1d1d22 1.4px 3px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12),inset 0 0 0 6px #0b0b0d,0 30px 60px rgba(0,0,0,.55);animation:spin 3.6s linear infinite;animation-play-state:paused}
+.tt.playing .vdisc{animation-play-state:running}
+.vlab{position:absolute;inset:31%;border-radius:50%;background:center/cover;box-shadow:0 0 0 4px rgba(0,0,0,.45)}
+.vlab::after{content:"";position:absolute;left:45%;top:45%;width:10%;height:10%;border-radius:50%;background:#0b0b0d;box-shadow:0 0 0 2px rgba(255,255,255,.3)}
+.vsh{position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 25deg,transparent 0 7%,rgba(255,255,255,.17) 11%,transparent 16% 50%,rgba(255,255,255,.1) 58%,transparent 64%);-webkit-mask-image:radial-gradient(circle,transparent 0 32%,#000 33%);mask-image:radial-gradient(circle,transparent 0 32%,#000 33%);pointer-events:none}
+.tt .arm{position:absolute;right:-6%;top:-8%;width:23%;transform-origin:72% 12%;transform:rotate(-30deg);transition:transform .9s cubic-bezier(.3,1.25,.5,1);overflow:visible;filter:drop-shadow(0 6px 6px rgba(0,0,0,.5))}
+.tt.playing .arm{transform:rotate(3deg)}
+.v-ctl{display:flex;align-items:center;gap:16px;margin-top:26px;justify-content:center}
+.playbtn{width:68px;height:68px;border-radius:50%;border:0;background:var(--sun);color:var(--ink);display:grid;place-items:center;box-shadow:0 0 0 6px rgba(255,200,61,.18);transition:transform .25s var(--ease),box-shadow .3s}
+.playbtn:hover{transform:scale(1.06);box-shadow:0 0 0 10px rgba(255,200,61,.16)}
+.playbtn svg{width:26px;height:26px}
+.v-state{font:700 13px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--dust);min-width:9ch}
+.v-text{display:grid;gap:22px}
+.v-text .big{font:700 clamp(28px,3vw,38px)/1.2 var(--display)}
+.v-shots{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(10px,2vw,22px);margin-top:12px}
+.v-shots figure{margin:0}
+.v-shots .phone{border-width:5px;border-radius:26px}
+
+/* ---------- 8. память ---------- */
+.m-grid{display:grid;gap:44px;align-items:center}
+@media(min-width:1000px){.m-grid{grid-template-columns:1fr 310px;gap:72px}}
+.m-list{display:grid;gap:30px}
+.m-list p{margin-top:8px;color:var(--brown);font-size:clamp(17px,1.6vw,20px);max-width:56ch}
+.privacy{margin-top:10px;background:var(--sun);border-radius:22px;padding:clamp(22px,3vw,34px);display:grid;gap:10px}
+.privacy b{font:italic 700 clamp(22px,2.4vw,30px)/1.25 var(--display)}
+.privacy span{color:var(--honey);font-size:17px}
+.m-grid .phone{justify-self:center}
+
+/* ---------- 9. таймер сна ---------- */
+.z-grid{display:grid;gap:44px;align-items:start}
+@media(min-width:1000px){.z-grid{grid-template-columns:300px 1fr;gap:64px}}
+.z-grid .phone{justify-self:center}
+.z-blocks{display:grid;gap:32px 44px}
+@media(min-width:700px){.z-blocks{grid-template-columns:1fr 1fr}}
+.z-blocks p{margin-top:8px;font-size:clamp(17px,1.6vw,20px)}
+.fade-demo{display:grid;gap:14px;margin-top:6px}
+.fbars{display:flex;align-items:flex-end;gap:clamp(4px,.8vw,9px);height:110px}
+.fbars i{flex:1;max-width:24px;background:var(--ink);border-radius:3px 3px 0 0;transition:opacity .18s,background .18s}
+.fbars i.off{opacity:.18}
+.fbars i.now{background:var(--paper)}
+.fd-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.fd-lbl{font:700 12px/1.3 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--rust)}
+.btn-small{padding:11px 16px;font-size:15px;border-width:2px}
+.badge-shot{border-radius:18px;overflow:hidden;background:#2a2730;border:3px solid var(--ink);max-width:460px;margin-top:6px}
+
+/* ---------- 10. звук ---------- */
+.chain{display:grid;gap:16px;align-items:stretch}
+@media(min-width:900px){.chain{grid-template-columns:1fr auto 1fr auto 1.25fr}}
+.step{background:var(--paper);color:var(--ink);border:2.5px solid var(--ink);border-radius:18px;padding:22px 24px;display:grid;gap:6px;box-shadow:6px 6px 0 var(--ink);transition:background .35s,transform .35s var(--ease)}
+.step b{font:700 clamp(19px,1.8vw,23px)/1.2 var(--mono)}
+.step span{color:var(--brown);font-size:17px}
+.step.dash{border-style:dashed;box-shadow:none}
+.step.lit{background:var(--sun);transform:translateY(-4px)}
+.chev{display:grid;place-items:center;font:700 13px/1 var(--mono);letter-spacing:.1em;color:var(--sun);text-transform:uppercase;gap:4px;text-align:center}
+.chev svg{width:44px;height:20px}
+@media(max-width:899px){.chev svg{transform:rotate(90deg)}}
+.midi{margin:30px 0 46px;font-size:clamp(17px,1.7vw,21px)}
+.midi b{font:700 1em/1 var(--mono);color:var(--sun);margin-right:10px}
+.s-cards{display:grid;gap:26px}
+@media(min-width:1000px){.s-cards{grid-template-columns:1fr 1fr}}
+.s-card{background:var(--paper);color:var(--ink);border:2.5px solid var(--ink);border-radius:22px;padding:clamp(24px,3vw,36px);box-shadow:8px 8px 0 var(--ink);display:grid;gap:8px;align-content:start;min-width:0}
+.s-card h3{font-size:clamp(30px,3.4vw,42px)}
+.s-card .sub{color:var(--brown)}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.pills span{font:700 14px/1 var(--mono);padding:9px 12px;border-radius:999px;border:2px solid var(--ink);text-transform:uppercase}
+.pills span:nth-child(4n+1){background:var(--red)} .pills span:nth-child(4n+2){background:var(--sun)} .pills span:nth-child(4n+3){background:var(--green);color:var(--paper)} .pills span:nth-child(4n){background:var(--blue);color:var(--paper)}
+.eq-presets{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.eq-presets button{font:600 15px/1 var(--body);padding:10px 14px;border-radius:999px;border:2px solid var(--ink);background:transparent;transition:background .2s,color .2s}
+.eq-presets button.on{background:var(--ink);color:var(--paper)}
+.eq{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin-top:22px;height:190px}
+.eq div{position:relative;display:flex;flex-direction:column;align-items:center}
+.eq .tr{position:absolute;top:22px;bottom:26px;width:6px;background:var(--ink);border-radius:3px;left:50%;translate:-50% 0}
+.eq .mid{position:absolute;top:calc(22px + (100% - 48px)/2);left:20%;right:20%;height:2px;background:var(--dust)}
+.eq .kn{position:absolute;left:50%;width:26px;height:26px;translate:-50% -50%;border-radius:50%;background:var(--red);border:2.5px solid var(--ink);top:calc(22px + (100% - 48px) * var(--y,.5));transition:top .6s var(--ease)}
+.eq .db{font:700 12px/1 var(--mono);color:var(--brown);font-variant-numeric:tabular-nums}
+.eq .hz{position:absolute;bottom:0;font:700 12px/1 var(--mono);color:var(--brown)}
+
+/* ---------- 11. установка ---------- */
+.tabs{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:26px}
+.tabs button{font:700 clamp(20px,2vw,26px)/1 var(--display);padding:14px 22px;border-radius:999px;border:2.5px solid var(--ink);background:transparent;transition:background .25s,color .25s,transform .25s var(--ease)}
+.tabs button[aria-selected=true]{background:var(--ink);color:var(--paper)}
+.tabs button:hover{transform:translateY(-2px)}
+.panel{display:grid;gap:22px}
+@media(min-width:900px){.panel{grid-template-columns:repeat(4,1fr)}}
+.panel[hidden]{display:none}
+.st{background:var(--paper2);border:2.5px solid var(--ink);border-radius:20px;padding:24px;display:grid;gap:12px;align-content:start;animation:stIn .5s var(--ease) both}
+.st:nth-child(2){animation-delay:.07s}.st:nth-child(3){animation-delay:.14s}.st:nth-child(4){animation-delay:.21s}
+@keyframes stIn{from{opacity:.2;transform:translateY(16px)}}
+.st b{font:700 44px/1 var(--display)}
+.st p{font-size:clamp(17px,1.6vw,19px)}
+.p-iphone .st b{color:var(--red)} .p-android .st b{color:var(--blue)} .p-pc .st b{color:var(--green)}
+.after{margin-top:34px;padding-top:24px;border-top:3px solid var(--ink);display:grid;gap:18px;align-items:center}
+@media(min-width:900px){.after{grid-template-columns:1fr auto}}
+.linkbox{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:var(--ink);color:var(--paper);border-radius:999px;padding:8px 8px 8px 20px;max-width:100%}
+.linkbox code{font:700 15px/1.3 var(--mono);overflow-wrap:anywhere;min-width:0}
+
+/* ---------- 12. все функции ---------- */
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:30px}
+.filters button{font:600 15px/1 var(--body);padding:11px 16px;border-radius:999px;border:2px solid rgba(243,236,221,.35);background:transparent;color:var(--paper);transition:background .2s,color .2s,border-color .2s}
+.filters button b{font:700 12px/1 var(--mono);opacity:.6;margin-left:6px}
+.filters button[aria-pressed=true]{background:var(--sun);color:var(--ink);border-color:var(--sun)}
+.fgrid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(min(100%,270px),1fr))}
+.f{background:var(--ink2);border:1.5px solid #3a3530;border-radius:18px;padding:20px 22px 22px;display:grid;gap:8px;align-content:start;transition:opacity .35s,transform .35s var(--ease),border-color .2s}
+.f:hover{border-color:var(--dust)}
+.f .g{font:700 11px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase}
+.f h4{margin:0;font:600 19px/1.3 var(--body);color:var(--paper)}
+.f p{color:var(--dust);font-size:16px;line-height:1.5}
+.f.hide{display:none}
+.f.pop{animation:fpop .45s var(--ease) both}
+@keyframes fpop{from{opacity:.15;transform:translateY(12px) scale(.98)}}
+.g-lib{color:#FF8A6B} .g-play{color:var(--sun)} .g-snd{color:#8FA3FF} .g-look{color:#F59BC2} .g-data{color:#5FD3A8} .g-inst{color:var(--paper)}
+.keys{grid-column:1/-1}
+.keys ul{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:10px 26px;grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr))}
+.keys li{display:flex;align-items:center;gap:10px;color:var(--dust);font-size:16px}
+kbd{font:700 13px/1 var(--mono);background:var(--paper);color:var(--ink);border-radius:7px;padding:6px 8px;box-shadow:0 3px 0 var(--dust);white-space:nowrap}
+
+/* ---------- 13. спасибо ---------- */
+.t-grid{display:grid;gap:44px;align-items:center}
+@media(min-width:1000px){.t-grid{grid-template-columns:1fr 380px;gap:64px}}
+.thanks h2{font-size:clamp(76px,12vw,160px);line-height:.92}
+.thanks .q{font:italic 700 clamp(32px,4.6vw,60px)/1.1 var(--display);color:var(--paper);margin:16px 0 34px}
+.qr-card{background:var(--paper);border:3px solid var(--ink);border-radius:26px;padding:28px;box-shadow:10px 10px 0 var(--ink);display:grid;gap:16px;justify-items:center;text-align:center;max-width:380px;justify-self:center}
+.qr-card img{width:100%;max-width:300px;image-rendering:pixelated}
+.qr-card b{font:700 22px/1.25 var(--display)}
+.foot{margin-top:56px;font:700 13px/1.4 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--rust)}
+
+/* ---------- точки-навигатор справа ---------- */
+.dots{position:fixed;right:max(14px,env(safe-area-inset-right,0px));top:50%;translate:0 -50%;z-index:25;display:none;flex-direction:column;gap:9px}
+@media(min-width:1180px){.dots{display:flex}}
+.dots a{position:relative;width:12px;height:12px;border-radius:50%;background:rgba(21,21,21,.35);border:2px solid rgba(243,236,221,.8);transition:transform .25s var(--ease),background .25s}
+.dots a.on{background:var(--sun);transform:scale(1.35)}
+.dots a span{position:absolute;right:22px;top:50%;translate:0 -50%;white-space:nowrap;font:600 13px/1 var(--body);background:var(--ink);color:var(--paper);padding:7px 10px;border-radius:8px;opacity:0;pointer-events:none;transition:opacity .2s}
+.dots a:hover span,.dots a:focus-visible span{opacity:1}
+
+/* ---------- плавное появление при прокрутке ---------- */
+@media (prefers-reduced-motion:no-preference){
+  @supports (animation-timeline:view()){
+    .rv{animation:rv linear both;animation-timeline:view();animation-range:entry 0% cover 26%}
+    .rv-l{animation:rvl linear both;animation-timeline:view();animation-range:entry 0% cover 28%}
+    .rv-r{animation:rvr linear both;animation-timeline:view();animation-range:entry 0% cover 28%}
+    .rv-s{animation:rvs linear both;animation-timeline:view();animation-range:entry 10% cover 40%}
+    .grow i{animation:grow linear both;animation-timeline:view();animation-range:entry 20% cover 45%}
+  }
+  .js-io .rv,.js-io .rv-l,.js-io .rv-r,.js-io .rv-s{transition:opacity .8s var(--ease),transform .9s var(--ease)}
+  .js-io .pre.rv{opacity:.2;transform:translateY(50px)}
+  .js-io .pre.rv-l{opacity:.2;transform:translateX(-60px)}
+  .js-io .pre.rv-r{opacity:.2;transform:translateX(60px)}
+  .js-io .pre.rv-s{opacity:.2;transform:scale(.85) rotate(-6deg)}
+}
+@keyframes rv{from{opacity:.2;transform:translateY(60px)}to{opacity:1;transform:none}}
+@keyframes rvl{from{opacity:.2;transform:translateX(-70px)}to{opacity:1;transform:none}}
+@keyframes rvr{from{opacity:.2;transform:translateX(70px)}to{opacity:1;transform:none}}
+@keyframes rvs{from{opacity:.2;transform:scale(.82) rotate(-8deg)}to{opacity:1;transform:none}}
+@keyframes grow{from{transform:scaleX(.04)}to{transform:none}}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .turntable .disc,.peek-tr,.vdisc{animation:none}
+  .turntable .arm{animation:none;transform:rotate(4deg)}
+  .hero h1 em img{animation:none;clip-path:none}
+  *{transition-duration:.01ms!important}
+}
+</style>
 </head>
 <body>
-<div class="blobs" aria-hidden="true"></div>
-<div class="prog" id="prog" aria-hidden="true"></div>
-<div class="wrap">
-<header class="top" id="hdr">
-  <a class="brand" href="#top" data-go><i></i>Плеер</a>
-  <nav class="links" id="nav"><a href="#features" data-go>Фишки</a><a href="#why" data-go>Плюсы</a><a href="#formats" data-go>Форматы</a><a href="#install" data-go>Установка</a><a href="#start" data-go>Начало</a><a href="#faq" data-go>Вопросы</a></nav>
-  <a class="btn sm" href="https://berezovskija124-ctrl.github.io/playerofic/" target="_blank" rel="noopener">Открыть плеер</a>
+
+<header class="nav" id="nav">
+  <div class="wrap">
+    <a class="brand" href="#top"><span class="brand-disc" id="navDisc"></span>Офлайн-плеер</a>
+    <nav class="links" aria-label="Разделы">
+      <a href="#why">Идея</a><a href="#library">Возможности</a><a href="#vinyl">Пластинка</a><a href="#sound">Звук</a><a href="#install">Установка</a><a href="#features">Все функции</a>
+    </nav>
+    <a class="btn btn-sun" href="https://berezovskija124-ctrl.github.io/playerofic/" target="_blank" rel="noopener">Открыть плеер</a>
+  </div>
+  <div class="progress" id="progress"></div>
 </header>
 
-<main id="top">
-<div class="hero">
-  <div>
-    <span class="tag">Работает без интернета</span>
-    <h1>Ваша музыка в&nbsp;стекле. <em>Без&nbsp;сети, без&nbsp;подписок.</em></h1>
-    <p class="lead">Офлайн-плеер в стиле iPhone Liquid Glass. Добавьте свои треки один раз, и они играют на телефоне и компьютере. Управление есть даже на экране блокировки.</p>
-    <div class="cta">
-      <a class="btn" href="https://berezovskija124-ctrl.github.io/playerofic/" target="_blank" rel="noopener">Открыть плеер</a>
-      <a class="btn ghost" href="#install" data-go>Как установить</a>
-    </div>
-    <ul class="facts"><li>Без регистрации</li><li>Без рекламы</li><li>Файлы остаются на вашем устройстве</li></ul>
-  </div>
-  <div class="phone" role="img" aria-label="Экран библиотеки плеера">
-    <div class="screen">
-      <div class="m-title">Моя музыка</div>
-      <div class="m-sub">4 трека · 18 мин · работает офлайн</div>
-      <div class="m-pill"><span>Пауза</span><span>Перемешать</span></div>
-      <div class="m-list">
-        <div class="m-row on"><div class="c" style="background:linear-gradient(135deg,#5a1a4a,#16081f)"><div class="eq" style="padding:9px 0 0 10px"><i></i><i></i><i></i></div></div><div><b>Instant Crush</b><small>Daft Punk</small></div><span class="t">4:17</span></div>
-        <div class="m-row"><div class="c" style="background:linear-gradient(135deg,#4f86ff,#2a2c70)"></div><div><b>Get Lucky</b><small>Daft Punk</small></div><span class="t">6:09</span></div>
-        <div class="m-row"><div class="c" style="background:linear-gradient(135deg,#c9803a,#6b3a1d)"></div><div><b>Lose Yourself</b><small>Daft Punk</small></div><span class="t">5:53</span></div>
-        <div class="m-row"><div class="c" style="background:linear-gradient(135deg,#2fd8b0,#1c6b60)"></div><div><b>Doin' It Right</b><small>Daft Punk</small></div><span class="t">4:11</span></div>
+<nav class="dots" id="dots" aria-label="Быстрый переход"></nav>
+
+<main>
+<!-- 1. ОБЛОЖКА -->
+<section class="band b-red hero" id="top" data-name="Начало">
+  <div class="wrap hero-grid">
+    <div>
+      <p class="kicker">Проект bert1 · ноябрь 2026</p>
+      <h1>Офлайн-<br><em>плеер<img src="img/ul_c.webp" alt="" width="600" height="47"></em></h1>
+      <p class="lead">Плеер для музыки, которая уже лежит у вас в телефоне</p>
+      <div class="hero-cta">
+        <span class="tag">Версия 2.0</span>
+        <a class="btn btn-ink" href="https://berezovskija124-ctrl.github.io/playerofic/" target="_blank" rel="noopener">Открыть плеер <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></a>
+        <a class="btn" href="#install">Как установить</a>
       </div>
-      <div class="m-mini"><div class="c"></div><div><b style="font-weight:600">Instant Crush</b><br><small style="opacity:.6;font-size:10px">Daft Punk</small></div><span style="margin-left:auto;letter-spacing:6px">⏮ ⏸ ⏭</span><div class="bar"><i></i></div></div>
+    </div>
+    <div class="turntable" aria-hidden="true">
+      <img class="disc" src="img/rec_y.webp" alt="" width="900" height="900">
+      <svg class="arm" viewBox="0 0 60 160"><path d="M43 19 L24 128" stroke="#151515" stroke-width="5" stroke-linecap="round" fill="none"/><circle cx="43" cy="19" r="13" fill="#F3ECDD" stroke="#151515" stroke-width="3"/><circle cx="43" cy="19" r="5" fill="#151515"/><rect x="13" y="120" width="20" height="32" rx="5" transform="rotate(10 23 136)" fill="#F3ECDD" stroke="#151515" stroke-width="3"/></svg>
     </div>
   </div>
-</div>
+</section>
 
-<section id="features" data-r>
-  <p class="kicker">Фишки</p>
-  <h2>Всё для музыки, ничего лишнего</h2>
-  <p class="sub">Плеер сделан так, чтобы им было приятно пользоваться каждый день: понятная библиотека, красивая шторка и точная настройка звука.</p>
-  <div class="grid">
-    <div class="card glass"><div class="ic"><svg viewBox="0 0 24 24"><path d="M2 12h3l3-8 4 16 3-12 2 4h5"/></svg></div><h3>10-полосный эквалайзер</h3><p>Готовые пресеты «Плоский», «Бас», «Вокал», «Высокие» и ручная настройка от 31 Гц до 16 кГц.</p></div>
-    <div class="card glass"><div class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="4"/><path d="M8 12h8"/></svg></div><h3>Стеклянная шторка</h3><p>Плеер выезжает как шторка. Она всегда нейтральная и не меняет цвет от обложки. В опущенном виде остаются перемешивание и повтор.</p></div>
-    <div class="card glass"><div class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="9" cy="9" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div><h3>Свои обложки и фон</h3><p>Поставьте любую картинку на трек или на фон библиотеки. Обложка не растягивается, а аккуратно обрезается по краям.</p></div>
-    <div class="card glass"><div class="ic"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10 6h4"/></svg></div><h3>Управление на экране блокировки</h3><p>Пауза, следующий и предыдущий трек, перемотка. Всё работает из шторки телефона и при выключенном экране.</p></div>
-    <div class="card glass"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></div><h3>Поиск, избранное, сортировка</h3><p>Найдите трек за секунду, отметьте любимые сердечком и отсортируйте по названию, исполнителю или дате.</p></div>
-    <div class="card glass"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg></div><h3>Ночная и светлая тема</h3><p>Обе темы читаются при любом фоне библиотеки, в том числе с вашей картинкой.</p></div>
+<!-- 2. ПОЧЕМУ -->
+<section class="band b-paper" id="why" data-name="Почему">
+  <div class="wrap">
+    <div class="sec-head rv"><h2>Почему я взялся за этот плеер</h2></div>
+    <div class="why-grid">
+      <div class="why-text rv">
+        <p>Музыка в приложениях играет, пока есть интернет и оплачена подписка. В метро, в самолёте или за городом она замолкает.</p>
+        <p>При этом скачанные треки есть почти у каждого. Открыть их часто нечем: на телефоне может не оказаться подходящего плеера, а сторонние просят аккаунт или показывают рекламу.</p>
+      </div>
+      <div class="card rv-r">
+        <h3 style="font-size:clamp(28px,3vw,38px)">Три условия</h3>
+        <ul class="conds">
+          <li class="rv-s"><img src="img/ck_g.webp" alt="" width="140" height="140">Играет без интернета</li>
+          <li class="rv-s"><img src="img/ck_g.webp" alt="" width="140" height="140">Ничего не просит: ни денег, ни регистрации</li>
+          <li class="rv-s"><img src="img/ck_g.webp" alt="" width="140" height="140">Одинаково работает на телефоне и компьютере</li>
+        </ul>
+      </div>
+    </div>
   </div>
 </section>
 
-<section id="why" data-r>
-  <p class="kicker">Плюсы</p>
-  <h2>Почему это удобнее обычных плееров</h2>
-  <p class="sub">Ваши файлы не уходят на сервер и не зависят от чужой подписки.</p>
-  <div class="pros">
-    <div class="pro glass"><b>0 ₽</b><p><strong>Бесплатно</strong>Нет тарифов, пробных периодов и скрытых ограничений.</p></div>
-    <div class="pro glass"><b>Офлайн</b><p><strong>Работает без сети</strong>После первой загрузки плеер открывается и играет в самолёте и в метро.</p></div>
-    <div class="pro glass"><b>Приватно</b><p><strong>Файлы остаются у вас</strong>Треки хранятся в памяти браузера на вашем устройстве. Регистрации нет.</p></div>
-    <div class="pro glass"><b>1 ссылка</b><p><strong>Телефон и компьютер</strong>Один и тот же плеер на iPhone, Android, Windows, macOS и Linux.</p></div>
+<!-- 3. 155 КБ -->
+<section class="band b-ink" id="size" data-name="155 КБ">
+  <img class="peek peek-tr" src="img/rec_c.webp" alt="" width="700" height="700">
+  <div class="wrap">
+    <div class="size-num rv" aria-label="155 килобайт"><span id="kb">155</span><small>КБ</small></div>
+    <p class="size-sub rv">весит весь плеер</p>
+    <div class="bars">
+      <div class="bar-row rv"><span class="lbl">Офлайн-плеер целиком</span><div class="bar bar-1 grow"><i></i><b>155 КБ</b></div></div>
+      <div class="bar-row rv"><span class="lbl">Одна песня в MP3 на три минуты</span><div class="bar bar-2 grow"><i></i><b>≈ 4 МБ</b></div></div>
+    </div>
+    <p class="size-note rv">В этот файл помещается всё: интерфейс, эквалайзер, синтезатор для MIDI, справка и документы. Фреймворков нет, только HTML, CSS и JavaScript.</p>
   </div>
 </section>
 
-<section id="formats" data-r>
-  <p class="kicker">Форматы</p>
-  <h2>Играет то, что у вас уже есть</h2>
-  <p class="sub">Если браузер не умеет какой-то формат сам, плеер подключает запасной декодер. Теги и обложки из файлов подтягиваются автоматически.</p>
-  <div class="chips"><span class="chip">MP3</span><span class="chip">FLAC</span><span class="chip">WAV</span><span class="chip">OGG</span><span class="chip">M4A / AAC</span><span class="chip">MIDI</span><span class="chip">и другие</span></div>
-</section>
-
-<section id="install" data-r>
-  <p class="kicker">Установка</p>
-  <h2>Установите за минуту</h2>
-  <p class="sub">Плеер работает как приложение: своя иконка, полный экран, офлайн. Магазин приложений не нужен. Выберите своё устройство.</p>
-
-  <div class="tabs glass" role="tablist" aria-label="Устройство">
-    <button role="tab" id="t-ios" aria-selected="true" aria-controls="p-ios">iPhone</button>
-    <button role="tab" id="t-and" aria-selected="false" aria-controls="p-and">Android</button>
-    <button role="tab" id="t-pc" aria-selected="false" aria-controls="p-pc">Компьютер</button>
-  </div>
-
-  <div class="panel glass" id="p-ios" role="tabpanel" aria-labelledby="t-ios">
-    <ol class="steps">
-      <li><div><b>Откройте плеер в Safari</b><span>Установка на iPhone работает только из Safari, не из Chrome и не из встроенных браузеров мессенджеров.</span></div></li>
-      <li><div><b>Нажмите «Поделиться»</b><span>Это квадрат со стрелкой вверх внизу экрана.</span></div></li>
-      <li><div><b>Выберите «На экран “Домой”»</b><span>Листайте меню вниз, если пункта не видно.</span></div></li>
-      <li><div><b>Нажмите «Добавить»</b><span>Иконка плеера появится на рабочем столе. Запускайте с неё.</span></div></li>
-    </ol>
-    <div class="note"><b>Важно:</b> открывайте плеер с иконки на рабочем столе. Так он работает на весь экран и управляется из шторки телефона.</div>
-  </div>
-
-  <div class="panel glass" id="p-and" role="tabpanel" aria-labelledby="t-and" hidden>
-    <ol class="steps">
-      <li><div><b>Откройте плеер в Chrome</b><span>Подойдут также Edge и Samsung Internet.</span></div></li>
-      <li><div><b>Откройте меню ⋮</b><span>Три точки в правом верхнем углу браузера.</span></div></li>
-      <li><div><b>Нажмите «Установить приложение»</b><span>Если такого пункта нет, выберите «Добавить на главный экран».</span></div></li>
-      <li><div><b>Подтвердите установку</b><span>Иконка плеера появится в списке приложений.</span></div></li>
-    </ol>
-  </div>
-
-  <div class="panel glass" id="p-pc" role="tabpanel" aria-labelledby="t-pc" hidden>
-    <ol class="steps">
-      <li><div><b>Откройте плеер в Chrome или Edge</b><span>Те же шаги подходят для Windows, macOS и Linux.</span></div></li>
-      <li><div><b>Найдите значок установки</b><span>Он справа в адресной строке: монитор со стрелкой. Либо меню ⋮ → «Установить Плеер».</span></div></li>
-      <li><div><b>Нажмите «Установить»</b><span>Плеер откроется в отдельном окне и добавится в меню «Пуск» или Launchpad.</span></div></li>
-    </ol>
-    <div class="note">Можно и не устанавливать: плеер полностью работает прямо во вкладке браузера.</div>
-  </div>
-
-  <div class="urlbox">
-    <code id="url">https://berezovskija124-ctrl.github.io/playerofic/</code>
-    <button class="btn ghost sm" id="copy" type="button">Скопировать ссылку</button>
-    <a class="btn sm" href="https://berezovskija124-ctrl.github.io/playerofic/" target="_blank" rel="noopener">Открыть</a>
+<!-- 4. ПОДБОРКИ -->
+<section class="band b-paper" id="library" data-name="Подборки">
+  <div class="wrap">
+    <div class="sec-head rv"><h2>Подборки собираются сами</h2></div>
+    <div class="lib-grid">
+      <div class="browser rv-l">
+        <div class="screen">
+          <img src="img/pc-lib.webp" alt="Библиотека плеера на компьютере: строка подборок над списком треков" width="1600" height="1000" loading="lazy">
+          <img class="mark" src="img/lp_r.webp" alt="" style="left:18.4%;top:27.6%;width:30.4%;height:10.6%">
+          <img class="mark" src="img/ul_r.webp" alt="" style="left:65.2%;top:35.6%;width:9.8%;height:2.6%">
+        </div>
+      </div>
+      <div class="points">
+        <div class="rv"><h3>Микс дня</h3><p>Каждый день новый набор. Любимые треки попадают в него чаще.</p></div>
+        <div class="rv"><h3>Недавние и Часто слушаю</h3><p>Последние добавленные треки и те, что вы включали больше всего.</p></div>
+        <div class="rv"><h3>Свои плейлисты</h3><p>Кнопка «+ Плейлист»: даёте название и отмечаете треки галочками.</p></div>
+      </div>
+    </div>
   </div>
 </section>
 
-<section id="start" data-r>
-  <p class="kicker">Первые шаги</p>
-  <h2>Как добавить музыку</h2>
-  <p class="sub">В библиотеке нажмите белую кнопку «Добавить» и выберите аудиофайлы на устройстве. Выбирать можно сразу несколько. Треки сохранятся и будут доступны офлайн.</p>
-  <div class="grid">
-    <div class="card glass"><h3>1. Добавьте треки</h3><p>Кнопка «Добавить» в библиотеке. Название, исполнитель и обложка берутся из тегов файла.</p></div>
-    <div class="card glass"><h3>2. Нажмите на трек</h3><p>Музыка запускается сразу. Полный плеер откроется, когда вы нажмёте на мини-плеер внизу.</p></div>
-    <div class="card glass"><h3>3. Настройте под себя</h3><p>Кнопка с ползунками вверху открывает настройки: эквалайзер, тема, фон и обложка.</p></div>
+<!-- 5. ЖЕСТЫ -->
+<section class="band b-blue" id="gestures" data-name="Жесты">
+  <div class="wrap">
+    <div class="sec-head rv"><h2>Обложку можно смахнуть</h2><p class="lead muted-b">Плеер удобно держать одной рукой. Нажмите на жест, чтобы увидеть его на экране.</p></div>
+    <div class="g-grid">
+      <div class="g-col left">
+        <button class="gl" data-g="left" type="button"><b>Двойное касание слева</b><span>назад на 10 секунд</span></button>
+        <button class="gl" data-g="swipe" type="button"><b>Влево или вправо</b><span>следующий или прошлый трек</span></button>
+      </div>
+      <figure class="phone g-phone rv" id="gphone" data-g="" style="margin:0">
+        <img src="img/ph-player.webp" alt="Экран плеера с крупной обложкой" width="660" height="1428" loading="lazy">
+        <div class="ov">
+          <div class="cover-move"><img src="img/cover-sun.webp" alt="" width="500" height="500"></div>
+          <span class="tap t-left">2×</span><span class="tap t-right">2×</span><span class="tap t-center">2×</span>
+          <span class="flash f-left">−10 с</span><span class="flash f-right">+10 с</span><span class="flash f-center">♥ в избранном</span>
+          <span class="hand h-swipe"></span><span class="hand h-down"></span>
+        </div>
+      </figure>
+      <div class="g-col right">
+        <button class="gl" data-g="down" type="button"><b>Вниз</b><span>обратно к списку</span></button>
+        <button class="gl" data-g="right" type="button"><b>Двойное касание справа</b><span>вперёд на 10 секунд</span></button>
+        <button class="gl" data-g="center" type="button"><b>Двойное касание в центре</b><span>трек в избранное</span></button>
+      </div>
+    </div>
   </div>
 </section>
 
-<section id="faq" data-r>
-  <p class="kicker">Вопросы</p>
-  <h2>Частые вопросы</h2>
-  <details class="glass"><summary>Нужен ли интернет?</summary><p>Только для первого открытия, чтобы плеер загрузился. Дальше он работает без сети.</p></details>
-  <details class="glass"><summary>Где хранятся мои треки?</summary><p>В памяти браузера на вашем устройстве. Они никуда не загружаются. Если очистить данные сайта в браузере, библиотека удалится, поэтому не стирайте их без необходимости.</p></details>
-  <details class="glass"><summary>Музыка не добавляется или не играет</summary><p>Проверьте формат файла. Если файл повреждён или защищён DRM (например, купленный в стороннем магазине), он не откроется. Для остальных плеер сам пробует запасные способы воспроизведения.</p></details>
-  <details class="glass"><summary>Нет кнопок управления на экране блокировки</summary><p>На iPhone запустите плеер с иконки на рабочем столе и начните воспроизведение. На Android используйте Chrome и разрешите сайту показывать уведомления о медиа.</p></details>
-  <details class="glass"><summary>Как обновить плеер?</summary><p>Обновления подтягиваются сами при следующем открытии с интернетом. Если вы не видите новое, закройте плеер полностью и откройте снова.</p></details>
-  <details class="glass"><summary>Куда написать об ошибке или идее?</summary><p>В настройках плеера есть кнопка «Написать в Telegram». Автор отвечает лично.</p></details>
+<!-- 6. ОЧЕРЕДЬ -->
+<section class="band b-sun" id="queue" data-name="Очередь">
+  <div class="wrap">
+    <div class="sec-head rv"><h2>Что сыграет <em style="color:var(--red)">следующим</em></h2></div>
+    <div class="q-grid">
+      <div class="q-phones">
+        <figure class="phone rv-l" style="margin:0">
+          <img src="img/ph-menu.webp" alt="Меню трека с пунктом «Играть следующим»" width="660" height="1428" loading="lazy">
+          <img class="mark" src="img/lp_r.webp" alt="" style="left:0;top:58.4%;width:100%;height:9%">
+        </figure>
+        <img class="q-arrow rv-s" src="img/ar_i.webp" alt="" width="360" height="208">
+        <figure class="phone rv-r" style="margin:0"><img src="img/ph-queue.webp" alt="Список «Далее»: очередь и следующие треки" width="660" height="1428" loading="lazy"></figure>
+      </div>
+      <div class="q-text">
+        <p class="big rv">«Играть следующим» ставит трек первым в очередь.</p>
+        <p class="rv">Меню открывается тремя точками справа от трека или долгим нажатием на строку.</p>
+        <p class="rv">Кнопка со списком наверху плеера показывает, что будет дальше. Цифра на ней — сколько треков ждут.</p>
+        <p class="rv">Лишнее убирается крестиком. Нажмите на любой трек в списке, и он заиграет сразу.</p>
+      </div>
+    </div>
+  </div>
 </section>
 
-<section class="final glass" style="margin-block:24px 8px">
-  <h2>Включите свою музыку</h2>
-  <p class="sub">Откройте плеер и добавьте первые треки. Это займёт меньше минуты.</p>
-  <div class="cta"><a class="btn" href="https://berezovskija124-ctrl.github.io/playerofic/" target="_blank" rel="noopener">Открыть плеер</a></div>
+<!-- 7. ПЛАСТИНКА -->
+<section class="band b-ink" id="vinyl" data-name="Пластинка">
+  <div class="wrap">
+    <div class="sec-head rv"><h2><em style="color:var(--sun)">Пластинка</em> вместо обложки</h2></div>
+    <div class="v-grid">
+      <div>
+        <div class="tt playing rv-s" id="tt">
+          <div class="vdisc"><div class="vlab" style="background-image:url('img/cover-sun.webp')"></div></div>
+          <div class="vsh"></div>
+          <svg class="arm" viewBox="0 0 60 160" aria-hidden="true"><path d="M43 19 L24 128" stroke="#e9e9ee" stroke-width="4.5" stroke-linecap="round" fill="none"/><circle cx="43" cy="19" r="13" fill="#d6d6dc"/><circle cx="43" cy="19" r="5" fill="#6f6f78"/><rect x="13" y="120" width="20" height="32" rx="5" transform="rotate(10 23 136)" fill="#f6f6f8"/></svg>
+        </div>
+        <div class="v-ctl">
+          <button class="playbtn" id="ttBtn" type="button" aria-label="Пауза"><svg viewBox="0 0 24 24" fill="currentColor" id="ttIcon"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg></button>
+          <span class="v-state" id="ttState">Играет</span>
+        </div>
+      </div>
+      <div class="v-text">
+        <p class="big rv">Пока музыка играет, диск крутится и игла лежит на нём. На паузе игла поднимается.</p>
+        <p class="rv muted-i">Включается в настройках: «Вид плеера» → «Пластинка». Обложка трека становится наклейкой в центре диска. Работает в ночной и светлой теме.</p>
+        <div class="v-shots rv">
+          <figure><div class="phone"><img src="img/ph-vinyl.webp" alt="Пластинка в плеере, музыка играет" width="660" height="1428" loading="lazy"></div><figcaption class="cap muted-i">Играет</figcaption></figure>
+          <figure><div class="phone"><img src="img/ph-vinyl-paused.webp" alt="Пластинка на паузе, игла поднята" width="660" height="1428" loading="lazy"></div><figcaption class="cap muted-i">Пауза</figcaption></figure>
+          <figure><div class="phone"><img src="img/ph-player-light.webp" alt="Пластинка в светлой теме" width="660" height="1428" loading="lazy"></div><figcaption class="cap muted-i">Светлая тема</figcaption></figure>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8. ЧТО ПЛЕЕР ПОМНИТ -->
+<section class="band b-paper" id="memory" data-name="Память">
+  <div class="wrap">
+    <div class="sec-head rv"><h2>Что плеер помнит</h2></div>
+    <div class="m-grid">
+      <div class="m-list">
+        <div class="rv"><h3>Где вы остановились</h3><p>Трек и секунду. В следующий раз на главной кнопке будет написано «Продолжить».</p></div>
+        <div class="rv"><h3>Сколько вы слушали</h3><p>Часы за неделю, любимые треки, любимый исполнитель и дни подряд. Окно со статистикой открывается кнопкой с графиком.</p></div>
+        <div class="rv"><h3>Ваши списки</h3><p>Плейлисты, очередь, избранное и названия треков, которые вы исправили сами.</p></div>
+        <div class="privacy rv"><b>Всё это хранится только на устройстве. Плеер ничего не отправляет в интернет.</b><span>Соглашение и политика конфиденциальности — в настройках плеера.</span></div>
+      </div>
+      <figure class="phone rv-r" style="margin:0"><img src="img/ph-stats.webp" alt="Окно «Моя статистика»: часы, сыгранные треки, дни подряд и график за неделю" width="660" height="1428" loading="lazy"></figure>
+    </div>
+  </div>
+</section>
+
+<!-- 9. ТАЙМЕР СНА -->
+<section class="band b-red" id="sleep" data-name="Таймер сна">
+  <div class="wrap">
+    <div class="sec-head rv"><h2>Можно уснуть под музыку</h2></div>
+    <div class="z-grid">
+      <figure class="phone rv-l" style="margin:0"><img src="img/ph-sleep.webp" alt="Меню таймера сна: 10, 20, 30, 45, 60 минут или до конца трека" width="660" height="1428" loading="lazy"></figure>
+      <div class="z-blocks">
+        <div class="rv"><h3>Выключит музыку сам</h3><p>Через 10, 20, 30, 45 или 60 минут. Не нужно просыпаться, чтобы нажать паузу.</p></div>
+        <div class="rv"><h3>Или в конце трека</h3><p>Песня доиграет до конца и не оборвётся на середине.</p></div>
+        <div class="rv">
+          <h3>Тихо, без щелчка</h3>
+          <p>Последние три секунды громкость плавно уходит в ноль, шаг за шагом.</p>
+          <div class="fade-demo">
+            <div class="fbars" id="fbars" aria-hidden="true"></div>
+            <div class="fd-row"><button class="btn btn-small" id="fadeBtn" type="button">▶ Послушать затухание</button><span class="fd-lbl">16 шагов за 3 секунды</span></div>
+          </div>
+        </div>
+        <div class="rv">
+          <h3>Время всегда видно</h3>
+          <p>Оно написано под названием трека. Нажмите на него, чтобы поменять время или выключить таймер.</p>
+          <div class="badge-shot"><img src="img/badge.webp" alt="Под названием трека: значок луны и 29:56 до выключения" width="732" height="214" loading="lazy"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 10. ЗВУК -->
+<section class="band b-blue" id="sound" data-name="Звук">
+  <div class="wrap">
+    <div class="sec-head rv"><h2>Если браузер не понял файл</h2><p class="lead muted-b">Плеер пробует способы по очереди, пока трек не заиграет.</p></div>
+    <div class="chain rv" id="chain">
+      <div class="step"><b>1. Браузер</b><span>обычное воспроизведение</span></div>
+      <div class="chev"><svg viewBox="0 0 44 20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 10h38M32 3l8 7-8 7"/></svg>нет?</div>
+      <div class="step"><b>2. Web Audio</b><span>плеер раскодирует файл сам</span></div>
+      <div class="chev"><svg viewBox="0 0 44 20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 10h38M32 3l8 7-8 7"/></svg>нет?</div>
+      <div class="step dash"><b>3. ffmpeg.wasm</b><span>только в версии-приложении</span></div>
+    </div>
+    <p class="midi rv"><b>MIDI</b>плеер озвучивает сам: у каждой ноты свой генератор звука.</p>
+    <div class="s-cards">
+      <div class="s-card rv-l">
+        <h3>33 расширения</h3>
+        <p class="sub">файлов плеер принимает</p>
+        <div class="pills" id="pills"></div>
+      </div>
+      <div class="s-card rv-r">
+        <h3>Эквалайзер</h3>
+        <p class="sub">10 полос от 31 Гц до 16 кГц, ±12 дБ. Попробуйте режимы:</p>
+        <div class="eq-presets" id="eqp" role="group" aria-label="Режимы эквалайзера"></div>
+        <div class="eq" id="eq" aria-hidden="true"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 11. УСТАНОВКА -->
+<section class="band b-paper" id="install" data-name="Установка">
+  <div class="wrap">
+    <div class="sec-head rv"><h2>Установка за минуту</h2><p class="lead muted-p">Магазин приложений не нужен: плеер ставится прямо из браузера.</p></div>
+    <div class="tabs rv" role="tablist" aria-label="Устройство">
+      <button role="tab" id="tab-iphone" aria-controls="p-iphone" aria-selected="true" type="button">iPhone</button>
+      <button role="tab" id="tab-android" aria-controls="p-android" aria-selected="false" type="button">Android</button>
+      <button role="tab" id="tab-pc" aria-controls="p-pc" aria-selected="false" type="button">Компьютер</button>
+    </div>
+    <div class="panel p-iphone" id="p-iphone" role="tabpanel" aria-labelledby="tab-iphone">
+      <div class="st"><b>1</b><p>Откройте ссылку в Safari</p></div>
+      <div class="st"><b>2</b><p>Нажмите «Поделиться»</p></div>
+      <div class="st"><b>3</b><p>Выберите «На экран “Домой”»</p></div>
+      <div class="st"><b>4</b><p>Нажмите «Добавить»</p></div>
+    </div>
+    <div class="panel p-android" id="p-android" role="tabpanel" aria-labelledby="tab-android" hidden>
+      <div class="st"><b>1</b><p>Откройте ссылку в Chrome</p></div>
+      <div class="st"><b>2</b><p>Откройте меню с тремя точками</p></div>
+      <div class="st"><b>3</b><p>Нажмите «Установить приложение»</p></div>
+      <div class="st"><b>4</b><p>Подтвердите установку</p></div>
+    </div>
+    <div class="panel p-pc" id="p-pc" role="tabpanel" aria-labelledby="tab-pc" hidden>
+      <div class="st"><b>1</b><p>Откройте ссылку в Chrome или Edge</p></div>
+      <div class="st"><b>2</b><p>Нажмите значок установки в адресной строке</p></div>
+      <div class="st"><b>3</b><p>Нажмите «Установить»</p></div>
+      <div class="st"><b>4</b><p>Плеер откроется в своём окне</p></div>
+    </div>
+    <div class="after rv">
+      <p style="font-size:clamp(18px,1.7vw,21px);max-width:60ch">После установки у плеера своя иконка, он открывается на весь экран, а музыкой можно управлять с экрана блокировки.</p>
+      <div class="linkbox"><code id="plink">berezovskija124-ctrl.github.io/playerofic</code><button class="btn btn-sun btn-small" id="copyBtn" type="button">Скопировать</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- 12. ВСЕ ФУНКЦИИ -->
+<section class="band b-ink" id="features" data-name="Все функции">
+  <div class="wrap">
+    <div class="sec-head rv"><h2>Все функции</h2><p class="lead muted-i">Всё, что умеет плеер версии 2.0, в одном месте.</p></div>
+    <div class="filters rv" id="filters" role="group" aria-label="Фильтр функций"></div>
+    <div class="fgrid" id="fgrid"></div>
+  </div>
+</section>
+
+<!-- 13. СПАСИБО -->
+<section class="band b-red thanks" id="thanks" data-name="Спасибо">
+  <div class="wrap t-grid">
+    <div>
+      <h2 class="rv">Спасибо!</h2>
+      <p class="q rv">Жду ваших вопросов</p>
+      <p class="lead rv" style="max-width:34ch">Связь со мной — кнопка «Написать в Telegram» в настройках плеера.</p>
+      <div class="hero-cta rv"><a class="btn btn-ink" href="https://berezovskija124-ctrl.github.io/playerofic/" target="_blank" rel="noopener">Открыть плеер <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></a></div>
+      <p class="foot">bert1 · 2026</p>
+    </div>
+    <div class="qr-card rv-s">
+      <img src="img/qr.png" alt="QR-код со ссылкой на плеер: berezovskija124-ctrl.github.io/playerofic" width="444" height="444">
+      <b>Наведите камеру телефона, и плеер откроется</b>
+    </div>
+  </div>
 </section>
 </main>
 
-<button class="totop" id="totop" type="button" aria-label="Наверх"><svg viewBox="0 0 24 24"><path d="m6 14 6-6 6 6"/></svg></button>
-<footer><span>Плеер · офлайн-музыка в стиле Liquid Glass</span><a href="https://web.telegram.org/a/#1364915352" target="_blank" rel="noopener">Поддержка в Telegram</a></footer>
-</div>
-
 <script>
 (function(){
-  var tabs=[].slice.call(document.querySelectorAll('[role=tab]'));
-  function pick(t){tabs.forEach(function(b){var on=b===t;b.setAttribute('aria-selected',on);document.getElementById(b.getAttribute('aria-controls')).hidden=!on})}
-  tabs.forEach(function(b){b.addEventListener('click',function(){pick(b)})});
-  var reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
-  function go(id){var el=id==='top'?document.documentElement:document.getElementById(id);if(!el)return;
-    if(id==='top'){scrollTo({top:0,behavior:reduce?'auto':'smooth'});return}
-    el.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});
-    try{history.replaceState(null,'','#'+id)}catch(e){}}
-  [].forEach.call(document.querySelectorAll('[data-go]'),function(a){a.addEventListener('click',function(e){e.preventDefault();go(a.getAttribute('href').slice(1))})});
-  var tt=document.getElementById('totop');tt.addEventListener('click',function(){go('top')});
-  var hdr=document.getElementById('hdr'),prog=document.getElementById('prog');
-  var secs=['features','why','formats','install','start','faq'].map(function(i){return document.getElementById(i)});
-  var links=[].slice.call(document.querySelectorAll('#nav a'));var nav=document.getElementById('nav');
-  var tick=false;
-  function upd(){tick=false;var y=scrollY,h=document.documentElement.scrollHeight-innerHeight;
-    prog.style.transform='scaleX('+(h>0?Math.min(1,y/h):0)+')';
-    hdr.classList.toggle('stuck',y>20);tt.classList.toggle('show',y>600);
-    var cur=null;secs.forEach(function(s){if(s.getBoundingClientRect().top<innerHeight*.35)cur=s.id});
-    links.forEach(function(a){var on=a.getAttribute('href')==='#'+cur;a.classList.toggle('act',on);
-      if(on&&nav.scrollWidth>nav.clientWidth&&!a._s){a._s=1;nav.scrollTo({left:a.offsetLeft-16,behavior:'smooth'})}if(!on)a._s=0})}
-  addEventListener('scroll',function(){if(!tick){tick=true;requestAnimationFrame(upd)}},{passive:true});addEventListener('resize',upd);upd();
-  if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.08});
-    [].forEach.call(document.querySelectorAll('[data-r]'),function(el){io.observe(el)})}else[].forEach.call(document.querySelectorAll('[data-r]'),function(el){el.classList.add('in')});
-  var ua=navigator.userAgent||'';
-  if(/Android/i.test(ua))pick(document.getElementById('t-and'));
-  else if(!/iPhone|iPad|iPod/i.test(ua)&&!/Mobi/i.test(ua))pick(document.getElementById('t-pc'));
-  var cp=document.getElementById('copy');
-  cp.addEventListener('click',function(){
-    var txt=document.getElementById('url').textContent;
-    function done(){cp.textContent='Скопировано';setTimeout(function(){cp.textContent='Скопировать ссылку'},1800)}
-    function sel(){var r=document.createRange();r.selectNodeContents(document.getElementById('url'));var s=getSelection();s.removeAllRanges();s.addRange(r)}
-    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done,sel)}else sel();
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- прогресс, крутящийся диск в шапке, активный раздел ---------- */
+const prog=$('#progress'),disc=$('#navDisc');
+const sections=$$('main > section');
+const dots=$('#dots');
+sections.forEach(s=>{const a=document.createElement('a');a.href='#'+s.id;a.innerHTML='<span>'+s.dataset.name+'</span>';a.setAttribute('aria-label',s.dataset.name);dots.appendChild(a)});
+const dotLinks=$$('#dots a'),navLinks=$$('.links a');
+let ticking=false;
+function onScroll(){
+  if(ticking)return;ticking=true;
+  requestAnimationFrame(()=>{
+    const h=document.documentElement.scrollHeight-innerHeight,y=scrollY;
+    prog.style.setProperty('--p',h>0?Math.min(1,y/h):0);
+    if(!reduce)disc.style.setProperty('--rot',(y*.35)+'deg');
+    let cur=0;const mid=innerHeight*.4;
+    sections.forEach((s,i)=>{if(s.getBoundingClientRect().top<=mid)cur=i});
+    dotLinks.forEach((a,i)=>a.classList.toggle('on',i===cur));
+    const id=sections[cur].id;
+    const map={why:'why',size:'why',library:'library',gestures:'library',queue:'library',vinyl:'vinyl',memory:'vinyl',sleep:'vinyl',sound:'sound',install:'install',features:'features',thanks:'features'};
+    navLinks.forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+map[id]));
+    ticking=false});
+}
+addEventListener('scroll',onScroll,{passive:true});addEventListener('resize',onScroll);onScroll();
+
+/* стрелки ← → листают разделы, как слайды */
+addEventListener('keydown',e=>{
+  if(e.altKey||e.ctrlKey||e.metaKey)return;
+  const t=e.target.tagName;if(t==='INPUT'||t==='TEXTAREA')return;
+  if(e.key!=='ArrowRight'&&e.key!=='ArrowLeft')return;
+  if(e.target.getAttribute&&e.target.getAttribute('role')==='tab')return;
+  const mid=innerHeight*.4;let cur=0;sections.forEach((s,i)=>{if(s.getBoundingClientRect().top<=mid)cur=i});
+  const n=Math.max(0,Math.min(sections.length-1,cur+(e.key==='ArrowRight'?1:-1)));
+  e.preventDefault();sections[n].scrollIntoView({behavior:reduce?'auto':'smooth'});
+});
+
+/* ---------- запасное плавное появление, если браузер не умеет анимации по прокрутке ---------- */
+if(!reduce&&!(window.CSS&&CSS.supports&&CSS.supports('animation-timeline: view()'))&&'IntersectionObserver' in window){
+  document.documentElement.classList.add('js-io');
+  const els=$$('.rv,.rv-l,.rv-r,.rv-s');
+  const io=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting){en.target.classList.remove('pre');io.unobserve(en.target)}}),{rootMargin:'0px 0px -8% 0px'});
+  els.forEach(el=>{if(el.getBoundingClientRect().top>innerHeight){el.classList.add('pre');io.observe(el)}});
+}
+
+/* ---------- 155 КБ: счётчик ---------- */
+(function(){
+  const el=$('#kb');if(reduce||!('IntersectionObserver' in window))return;
+  let done=false;
+  const io=new IntersectionObserver(es=>{es.forEach(en=>{if(en.isIntersecting&&!done){done=true;io.disconnect();
+    const t0=performance.now(),D=1300;
+    (function f(t){const k=Math.min(1,(t-t0)/D),e=1-Math.pow(1-k,3);el.textContent=Math.round(155*e);if(k<1)requestAnimationFrame(f)})(t0);
+  }})},{threshold:.6});
+  if(el.getBoundingClientRect().top>innerHeight)io.observe(el);
+})();
+
+/* ---------- жесты ---------- */
+(function(){
+  const ph=$('#gphone'),btns=$$('.gl');const order=['left','swipe','down','right','center'];
+  let i=0,timer=null,manual=false;
+  function show(g){ph.dataset.g='';void ph.offsetWidth;ph.dataset.g=g;btns.forEach(b=>b.classList.toggle('on',b.dataset.g===g))}
+  function next(){show(order[i%order.length]);i++}
+  btns.forEach(b=>b.addEventListener('click',()=>{manual=true;clearInterval(timer);show(b.dataset.g);timer=setInterval(()=>{if(!document.hidden){i=order.indexOf(ph.dataset.g)+1;next()}},4200)}));
+  if(reduce){show('left');return}
+  const io=new IntersectionObserver(es=>es.forEach(en=>{
+    if(en.isIntersecting&&!timer){next();timer=setInterval(()=>{if(!document.hidden)next()},2600)}
+    else if(!en.isIntersecting&&timer){clearInterval(timer);timer=null}
+  }),{threshold:.35});
+  io.observe(ph);
+})();
+
+/* ---------- пластинка ---------- */
+(function(){
+  const tt=$('#tt'),b=$('#ttBtn'),st=$('#ttState'),ic=$('#ttIcon');
+  const PAUSE='<rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/>',PLAY='<path d="M8 5.5v13l11-6.5z"/>';
+  function set(on){tt.classList.toggle('playing',on);ic.innerHTML=on?PAUSE:PLAY;b.setAttribute('aria-label',on?'Пауза':'Играть');st.textContent=on?'Играет':'Пауза'}
+  if(reduce)set(false);
+  b.addEventListener('click',()=>set(!tt.classList.contains('playing')));
+})();
+
+/* ---------- таймер сна: затухание ---------- */
+(function(){
+  const box=$('#fbars'),btn=$('#fadeBtn');const N=16;
+  for(let k=0;k<N;k++){const i=document.createElement('i');i.style.height=Math.max(6,100*(1-k/N))+'%';box.appendChild(i)}
+  const bars=[...box.children];let busy=false,ac=null;
+  btn.addEventListener('click',async()=>{
+    if(busy)return;busy=true;btn.disabled=true;btn.textContent='Играет…';
+    bars.forEach(b=>b.classList.remove('off','now'));
+    let g=null,oscs=[];
+    try{
+      ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+      if(ac.state==='suspended')await ac.resume();
+      g=ac.createGain();g.gain.value=0;g.connect(ac.destination);
+      const now=ac.currentTime;g.gain.linearRampToValueAtTime(.16,now+.25);
+      [220,277.18,329.63,440].forEach((f,k)=>{const o=ac.createOscillator();o.type=k===3?'sine':'triangle';o.frequency.value=f;const og=ac.createGain();og.gain.value=k===3?.35:.55;o.connect(og);og.connect(g);o.start();oscs.push(o)});
+    }catch(e){g=null}
+    await new Promise(r=>setTimeout(r,1500));
+    btn.textContent='Затихает…';
+    for(let k=1;k<=N;k++){
+      const v=.16*(1-k/N);
+      if(g){g.gain.cancelScheduledValues(ac.currentTime);g.gain.setValueAtTime(v,ac.currentTime)}
+      bars.forEach((b,j)=>{b.classList.toggle('now',j===k-1);if(j<k-1)b.classList.add('off')});
+      await new Promise(r=>setTimeout(r,180));
+    }
+    bars.forEach(b=>{b.classList.add('off');b.classList.remove('now')});
+    oscs.forEach(o=>{try{o.stop()}catch(e){}});
+    btn.textContent='Музыка остановлена';
+    setTimeout(()=>{bars.forEach(b=>b.classList.remove('off'));btn.textContent='▶ Послушать ещё раз';btn.disabled=false;busy=false},1600);
   });
 })();
-</script>
 
+/* ---------- звук: цепочка, форматы, эквалайзер ---------- */
+(function(){
+  const steps=$$('#chain .step');let k=0;
+  if(!reduce)setInterval(()=>{if(document.hidden)return;steps.forEach((s,i)=>s.classList.toggle('lit',i===k%3));k++},1400);
+  const ext='mp3 m4a m4b mp4 aac wav wave aif aiff aifc flac alac caf ape wma wv ogg oga opus spx dsf dff mid midi kar amr awb mqa mka webm 3gp ac3 mpc'.split(' ');
+  $('#pills').innerHTML=ext.map(e=>'<span>'+e+'</span>').join('');
+  const PRE={'Плоский':[0,0,0,0,0,0,0,0,0,0],'Бас':[7,6,5,3,1,0,0,0,0,0],'Вокал':[-2,-2,-1,1,3,4,3,1,0,-1],'Высокие':[0,0,0,0,0,1,3,5,6,7],'Рок':[5,4,2,-1,-2,-1,2,4,5,5]};
+  const HZ=['31','62','125','250','500','1k','2k','4k','8k','16k'];
+  const eq=$('#eq'),pb=$('#eqp');
+  eq.innerHTML=HZ.map(h=>'<div><span class="db">0</span><i class="tr"></i><i class="mid"></i><i class="kn"></i><span class="hz">'+h+'</span></div>').join('');
+  const cols=[...eq.children];
+  function apply(name){const v=PRE[name];cols.forEach((c,i)=>{c.style.setProperty('--y',(12-v[i])/24);c.querySelector('.db').textContent=(v[i]>0?'+':'')+v[i]});$$('#eqp button').forEach(b=>{const on=b.textContent===name;b.classList.toggle('on',on);b.setAttribute('aria-pressed',String(on))})}
+  Object.keys(PRE).forEach(n=>{const b=document.createElement('button');b.type='button';b.textContent=n;b.addEventListener('click',()=>apply(n));pb.appendChild(b)});
+  apply('Вокал');
+})();
+
+/* ---------- установка: вкладки ---------- */
+(function(){
+  const tabs=$$('[role=tab]');
+  function sel(t){tabs.forEach(x=>{const on=x===t;x.setAttribute('aria-selected',String(on));x.tabIndex=on?0:-1;document.getElementById(x.getAttribute('aria-controls')).hidden=!on})}
+  tabs.forEach((t,i)=>{t.addEventListener('click',()=>sel(t));t.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();const n=tabs[(i+(e.key==='ArrowRight'?1:tabs.length-1))%tabs.length];sel(n);n.focus()}})});
+  const ua=navigator.userAgent;
+  if(/Android/i.test(ua))sel($('#tab-android'));else if(/iPhone|iPad|iPod/i.test(ua))sel($('#tab-iphone'));else if(!/Mobi/i.test(ua))sel($('#tab-pc'));
+  const cb=$('#copyBtn'),code=$('#plink');
+  cb.addEventListener('click',()=>{
+    const done=()=>{cb.textContent='Скопировано';setTimeout(()=>cb.textContent='Скопировать',1800)};
+    const sel=()=>{const r=document.createRange();r.selectNodeContents(code);const s=getSelection();s.removeAllRanges();s.addRange(r);cb.textContent='Выделено: нажмите «Копировать»'};
+    try{navigator.clipboard.writeText('https://berezovskija124-ctrl.github.io/playerofic/').then(done,sel)}catch(e){sel()}
+  });
+})();
+
+/* ---------- все функции ---------- */
+(function(){
+  const G={lib:'Библиотека',play:'Плеер',snd:'Звук',look:'Вид',data:'Данные',inst:'Установка'};
+  const F=[
+   ['lib','Добавление музыки','Кнопка «Добавить» или перетаскивание файлов прямо в окно на компьютере. Можно выбрать сразу много треков.'],
+   ['lib','Название и обложка из файла','Плеер читает теги MP3, FLAC и M4A. Если тегов нет, берёт имя файла вида «Исполнитель - Название».'],
+   ['lib','Без дублей','Если такой файл уже есть в библиотеке, плеер его пропустит: он сверяет имя и размер.'],
+   ['lib','Поиск','По названию и исполнителю, список фильтруется прямо во время набора.'],
+   ['lib','Сортировка','Сначала добавленные, по названию, по исполнителю или по длительности.'],
+   ['lib','Избранное','Сердечко у трека. Все отмеченные собираются в подборку «Избранное».'],
+   ['lib','Подборки','«Микс дня», «Недавние» и «Часто слушаю» плеер собирает сам.'],
+   ['lib','Свои плейлисты','Создать, переименовать, удалить. Треки отмечаются галочками из общего списка.'],
+   ['lib','Меню трека','Три точки, долгое нажатие на телефоне или правая кнопка мыши на компьютере.'],
+   ['lib','Своё название','Исправьте название или исполнителя, если в файле ошибка. Плеер это запомнит.'],
+   ['lib','Своя обложка','Любая картинка из галереи вместо обложки трека.'],
+   ['play','Слушать и Перемешать','Две большие кнопки запускают всю библиотеку подряд или вперемешку.'],
+   ['play','Мини-плеер','Внизу экрана: пауза, переключение и полоска прогресса. Смахните его, чтобы сменить трек.'],
+   ['play','Волна трека','Нажмите на волну в плеере, чтобы перемотать в нужное место.'],
+   ['play','Перемешивание и повтор','Повтор всего списка или одного трека. Без повтора каждый трек звучит один раз.'],
+   ['play','Очередь «Далее»','«Играть следующим» и «Добавить в очередь». Список видно по кнопке наверху плеера.'],
+   ['play','Жесты','Смахнуть обложку, смахнуть вниз, двойное касание по краям и в центре.'],
+   ['play','Продолжение с места','Плеер помнит трек и секунду. Кнопка на главном экране становится «Продолжить».'],
+   ['play','Таймер сна','10, 20, 30, 45, 60 минут или до конца трека. Музыка затихает плавно.'],
+   ['play','Скорость','От 0,5× до 2×, в меню «⋯» в плеере.'],
+   ['play','Экран блокировки','Пауза, переключение и перемотка из шторки телефона и кнопками наушников.'],
+   ['snd','Эквалайзер','10 полос от 31 Гц до 16 кГц, ±12 дБ. Режимы: Плоский, Бас, Вокал, Высокие, Рок.'],
+   ['snd','33 формата','MP3, FLAC, WAV, OGG, OPUS, M4A, AAC, MIDI, DSD и другие.'],
+   ['snd','Запасной способ','Если браузер не понял файл, плеер раскодирует его сам через Web Audio.'],
+   ['snd','Свой синтезатор MIDI','MIDI-файлы плеер озвучивает сам, каждая нота — отдельный генератор звука.'],
+   ['snd','Громкость','Ползунок громкости в плеере. Уровень запоминается между запусками.'],
+   ['look','Режим «Пластинка»','Обложка становится крутящимся диском, игла опускается, когда музыка играет.'],
+   ['look','Ночная и светлая тема','Переключаются в настройках одним касанием.'],
+   ['look','Свой фон библиотеки','Любая картинка на фоне главного экрана, её можно сбросить.'],
+   ['look','Стеклянные панели','Полупрозрачные панели с размытым фоном, в духе Liquid Glass из iOS 26.'],
+   ['look','Телефон и компьютер','Одна и та же библиотека подстраивается под экран: от узкого телефона до широкого монитора.'],
+   ['data','Всё на устройстве','Треки, обложки, плейлисты и настройки хранятся в памяти устройства. На сервер ничего не уходит.'],
+   ['data','Моя статистика','Часы прослушивания, график за неделю, любимые треки и исполнитель, дни подряд. Можно сбросить.'],
+   ['data','Хранилище','Показывает, сколько места занимает музыка, и может защитить её от автоочистки браузером.'],
+   ['data','Документы','Пользовательское соглашение, политика конфиденциальности и справка в настройках.'],
+   ['data','«Что нового»','После обновления плеер один раз показывает, что появилось.'],
+   ['data','Связь с автором','Кнопка «Написать в Telegram» в настройках: вопросы, ошибки, идеи.'],
+   ['inst','Без магазина приложений','Плеер ставится прямо из браузера на iPhone, Android и компьютер.'],
+   ['inst','Работает без интернета','После первого открытия плеер запускается и играет без сети.'],
+   ['inst','Своя иконка','После установки плеер открывается на весь экран, как обычное приложение.'],
+   ['inst','Кнопка «Назад» на Android','Закрывает открытое окно или плеер, а не всё приложение.']
+  ];
+  const grid=$('#fgrid'),fb=$('#filters');
+  grid.innerHTML=F.map(([g,h,p])=>'<article class="f" data-g="'+g+'"><span class="g g-'+g+'">'+G[g]+'</span><h4>'+h+'</h4><p>'+p+'</p></article>').join('')+
+    '<article class="f keys" data-g="play"><span class="g g-play">Клавиши на компьютере</span><h4>Плеером можно управлять с клавиатуры</h4><ul>'+
+    [['Пробел','пауза и запуск'],['← →','прошлый и следующий трек'],['Shift + ← →','перемотка на 10 секунд'],['↑ ↓','громкость в плеере'],['M','выключить звук'],['L','сердечко'],['S','перемешать'],['R','повтор'],['Q','очередь'],['/','поиск']].map(([k,t])=>'<li><kbd>'+k+'</kbd>'+t+'</li>').join('')+'</ul></article>';
+  const cards=[...grid.children];
+  const cnt=g=>g==='all'?F.length+1:cards.filter(c=>c.dataset.g===g).length;
+  ['all'].concat(Object.keys(G)).forEach(g=>{const b=document.createElement('button');b.type='button';b.dataset.g=g;b.innerHTML=(g==='all'?'Все':G[g])+'<b>'+cnt(g)+'</b>';b.setAttribute('aria-pressed',String(g==='all'));fb.appendChild(b)});
+  fb.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+    $$('#filters button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
+    const g=b.dataset.g;let d=0;
+    cards.forEach(c=>{const show=g==='all'||c.dataset.g===g;c.classList.toggle('hide',!show);c.classList.remove('pop');if(show&&!reduce){void c.offsetWidth;c.style.animationDelay=(Math.min(d++,12)*35)+'ms';c.classList.add('pop')}})});
+})();
+})();
+</script>
 </body>
 </html>
