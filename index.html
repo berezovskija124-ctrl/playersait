@@ -162,15 +162,21 @@ h3{font-size:clamp(23px,2.3vw,30px);line-height:1.15}
 .g-phone .cover-move{position:absolute;left:6.15%;top:9.19%;width:87.7%;height:40.5%;border-radius:10px;overflow:hidden;opacity:0}
 .g-phone .cover-move img{width:100%;height:100%;object-fit:cover}
 .g-phone[data-g=swipe] .cover-move{opacity:1;animation:swipeL 1.6s .15s var(--ease) both}
-.g-phone[data-g=down] .cover-move{opacity:1;animation:swipeD 1.6s .15s var(--ease) both}
+.g-phone .dn{position:absolute;inset:0;opacity:0;background:#101014}
+.g-phone .dn img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.g-phone .dn-pl{box-shadow:0 -14px 34px rgba(0,0,0,.45)}
+.g-phone[data-g=down] .dn{opacity:1}
+.g-phone[data-g=down] .dn-pl{animation:plD 1.9s .1s both}
+.g-phone[data-g=down] .dn-lib{animation:libD 1.9s .1s both}
+@keyframes plD{0%,12%{transform:none;animation-timing-function:linear}50%{transform:translateY(34%);animation-timing-function:cubic-bezier(.2,.75,.25,1)}78%,100%{transform:translateY(101%)}}
+@keyframes libD{0%,12%{transform:scale(.94);opacity:.5;animation-timing-function:linear}50%{transform:scale(.96);opacity:.68;animation-timing-function:cubic-bezier(.2,.75,.25,1)}78%,100%{transform:none;opacity:1}}
 @keyframes swipeL{0%{transform:none}45%{transform:translateX(-70%) rotate(-5deg);opacity:.25}55%{transform:translateX(60%);opacity:0}100%{transform:none;opacity:1}}
-@keyframes swipeD{0%{transform:none}50%{transform:translateY(40%);opacity:.3}51%{opacity:0;transform:translateY(-10%)}100%{transform:none;opacity:1}}
 .hand{position:absolute;width:15%;aspect-ratio:1;border-radius:50%;background:rgba(255,200,61,.9);border:3px solid var(--ink);opacity:0;translate:-50% -50%}
 .g-phone[data-g=swipe] .h-swipe{animation:handL 1.6s .15s var(--ease) both}
 .g-phone[data-g=down] .h-down{animation:handD 1.6s .15s var(--ease) both}
-.h-swipe{left:75%;top:42%} .h-down{left:50%;top:18%}
+.h-swipe{left:75%;top:42%} .h-down{left:50%;top:30%}
 @keyframes handL{0%{opacity:0;left:75%}12%{opacity:1}60%{opacity:1;left:22%}75%,100%{opacity:0;left:22%}}
-@keyframes handD{0%{opacity:0;top:18%}12%{opacity:1}60%{opacity:1;top:44%}75%,100%{opacity:0;top:44%}}
+@keyframes handD{0%{opacity:0;top:30%}12%{opacity:1;top:30%;animation-timing-function:linear}50%{opacity:1;top:64%}60%,100%{opacity:0;top:64%}}
 .g-hint{font:700 12px/1.4 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--lilac);margin-top:28px;text-align:center}
 @media(max-width:999px){.g-col.left{text-align:left}.g-col.left .gl.on,.g-col.right .gl.on{transform:none}.g-phone{order:-1}}
 
@@ -225,7 +231,7 @@ h3{font-size:clamp(23px,2.3vw,30px);line-height:1.15}
 .z-blocks p{margin-top:8px;font-size:clamp(17px,1.6vw,20px)}
 .fade-demo{display:grid;gap:14px;margin-top:6px}
 .fbars{display:flex;align-items:flex-end;gap:clamp(4px,.8vw,9px);height:110px}
-.fbars i{flex:1;max-width:24px;background:var(--ink);border-radius:3px 3px 0 0;transition:opacity .18s,background .18s}
+.fbars i{flex:1;max-width:18px;background:var(--ink);border-radius:3px 3px 0 0;transition:opacity .35s,background .35s}
 .fbars i.off{opacity:.18}
 .fbars i.now{background:var(--paper)}
 .fd-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
@@ -282,6 +288,16 @@ h3{font-size:clamp(23px,2.3vw,30px);line-height:1.15}
 .after{margin-top:34px;padding-top:24px;border-top:3px solid var(--ink);display:grid;gap:18px;align-items:center}
 @media(min-width:900px){.after{grid-template-columns:1fr auto}}
 .linkbox{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:var(--ink);color:var(--paper);border-radius:999px;padding:8px 8px 8px 20px;max-width:100%}
+.share{margin-top:34px;display:grid;gap:18px}
+.share h3{font-size:clamp(26px,2.6vw,34px)}
+.share>p{font-size:clamp(17px,1.6vw,19px);max-width:62ch}
+.sh-grid{display:grid;gap:16px}
+@media(min-width:900px){.sh-grid{grid-template-columns:repeat(3,1fr)}}
+.sh{background:var(--paper2);border:2.5px solid var(--ink);border-radius:20px;padding:22px 24px;display:grid;gap:8px;align-content:start}
+.sh b{font:700 13px/1.3 var(--mono);letter-spacing:.14em;text-transform:uppercase}
+.sh p{font-size:clamp(17px,1.6vw,19px)}
+.sh i{font-style:normal;font-weight:600}
+.sh:nth-child(1) b{color:var(--blue)} .sh:nth-child(2) b{color:var(--green)} .sh:nth-child(3) b{color:var(--red)}
 .linkbox code{font:700 15px/1.3 var(--mono);overflow-wrap:anywhere;min-width:0}
 
 /* ---------- 12. все функции ---------- */
@@ -455,13 +471,14 @@ kbd{font:700 13px/1 var(--mono);background:var(--paper);color:var(--ink);border-
         <img src="img/ph-player.webp" alt="Экран плеера с крупной обложкой" width="660" height="1428" loading="lazy">
         <div class="ov">
           <div class="cover-move"><img src="img/cover-sun.webp" alt="" width="500" height="500"></div>
+          <div class="dn"><img class="dn-lib" src="img/ph-lib.webp" alt="" width="660" height="1428" loading="lazy"><img class="dn-pl" src="img/ph-player.webp" alt="" width="660" height="1428" loading="lazy"></div>
           <span class="tap t-left">2×</span><span class="tap t-right">2×</span><span class="tap t-center">2×</span>
           <span class="flash f-left">−10 с</span><span class="flash f-right">+10 с</span><span class="flash f-center">♥ в избранном</span>
           <span class="hand h-swipe"></span><span class="hand h-down"></span>
         </div>
       </figure>
       <div class="g-col right">
-        <button class="gl" data-g="down" type="button"><b>Вниз</b><span>обратно к списку</span></button>
+        <button class="gl" data-g="down" type="button"><b>Вниз</b><span>плеер плавно уезжает к списку</span></button>
         <button class="gl" data-g="right" type="button"><b>Двойное касание справа</b><span>вперёд на 10 секунд</span></button>
         <button class="gl" data-g="center" type="button"><b>Двойное касание в центре</b><span>трек в избранное</span></button>
       </div>
@@ -547,17 +564,17 @@ kbd{font:700 13px/1 var(--mono);background:var(--paper);color:var(--ink);border-
         <div class="rv"><h3>Выключит музыку сам</h3><p>Через 10, 20, 30, 45 или 60 минут. Не нужно просыпаться, чтобы нажать паузу.</p></div>
         <div class="rv"><h3>Или в конце трека</h3><p>Песня доиграет до конца и не оборвётся на середине.</p></div>
         <div class="rv">
-          <h3>Тихо, без щелчка</h3>
-          <p>Последние три секунды громкость плавно уходит в ноль, шаг за шагом.</p>
+          <h3>Затихает очень медленно</h3>
+          <p>Последнюю минуту громкость уходит в ноль так плавно, что момент тишины не слышно.</p>
           <div class="fade-demo">
             <div class="fbars" id="fbars" aria-hidden="true"></div>
-            <div class="fd-row"><button class="btn btn-small" id="fadeBtn" type="button">▶ Послушать затухание</button><span class="fd-lbl">16 шагов за 3 секунды</span></div>
+            <div class="fd-row"><button class="btn btn-small" id="fadeBtn" type="button">▶ Послушать затухание</button><span class="fd-lbl">минута затихания за 8 секунд</span></div>
           </div>
         </div>
         <div class="rv">
-          <h3>Время всегда видно</h3>
-          <p>Оно написано под названием трека. Нажмите на него, чтобы поменять время или выключить таймер.</p>
-          <div class="badge-shot"><img src="img/badge.webp" alt="Под названием трека: значок луны и 29:56 до выключения" width="732" height="214" loading="lazy"></div>
+          <h3>Кнопка всегда на виду</h3>
+          <p>«Таймер сна» стоит прямо под названием трека. Пока таймер идёт, на кнопке обратный отсчёт, а в последнюю минуту надпись «Затихает».</p>
+          <div class="badge-shot"><img src="img/badge.webp" alt="Под названием трека: кнопка «Затихает · 0:41» и «В очереди: 2»" width="732" height="214" loading="lazy"></div>
         </div>
       </div>
     </div>
@@ -622,6 +639,15 @@ kbd{font:700 13px/1 var(--mono);background:var(--paper);color:var(--ink);border-
     <div class="after rv">
       <p style="font-size:clamp(18px,1.7vw,21px);max-width:60ch">После установки у плеера своя иконка, он открывается на весь экран, а музыкой можно управлять с экрана блокировки.</p>
       <div class="linkbox"><code id="plink">berezovskija124-ctrl.github.io/playerofic</code><button class="btn btn-sun btn-small" id="copyBtn" type="button">Скопировать</button></div>
+    </div>
+    <div class="share rv">
+      <h3>Музыка из других приложений</h3>
+      <p>Трек, который прислали в мессенджере или скачали в браузере, не нужно искать по папкам.</p>
+      <div class="sh-grid">
+        <div class="sh"><b>Android</b><p>Нажмите <i>«Поделиться»</i> на файле в Telegram, «Файлах» или браузере и выберите <i>«Офлайн-плеер»</i>. Трек сразу окажется в библиотеке.</p></div>
+        <div class="sh"><b>Компьютер</b><p>Правой кнопкой по файлу: <i>«Открыть с помощью»</i> → <i>«Офлайн-плеер»</i>. Или просто перетащите файлы в окно плеера.</p></div>
+        <div class="sh"><b>iPhone</b><p>Сохраните трек через <i>«Сохранить в Файлы»</i>, потом в плеере нажмите <i>«Добавить»</i> и выберите его.</p></div>
+      </div>
     </div>
   </div>
 </section>
@@ -737,8 +763,9 @@ if(!reduce&&!(window.CSS&&CSS.supports&&CSS.supports('animation-timeline: view()
 
 /* ---------- таймер сна: затухание ---------- */
 (function(){
-  const box=$('#fbars'),btn=$('#fadeBtn');const N=16;
-  for(let k=0;k<N;k++){const i=document.createElement('i');i.style.height=Math.max(6,100*(1-k/N))+'%';box.appendChild(i)}
+  const box=$('#fbars'),btn=$('#fadeBtn');const N=30,T=8,G=.16;
+  const ease=x=>x*x*(3-2*x),amp=x=>Math.pow(10,-56*ease(x)/20);
+  for(let k=0;k<N;k++){const i=document.createElement('i');i.style.height=Math.max(4,100*(1-ease(k/(N-1))))+'%';box.appendChild(i)}
   const bars=[...box.children];let busy=false,ac=null;
   btn.addEventListener('click',async()=>{
     if(busy)return;busy=true;btn.disabled=true;btn.textContent='Играет…';
@@ -748,19 +775,19 @@ if(!reduce&&!(window.CSS&&CSS.supports&&CSS.supports('animation-timeline: view()
       ac=ac||new (window.AudioContext||window.webkitAudioContext)();
       if(ac.state==='suspended')await ac.resume();
       g=ac.createGain();g.gain.value=0;g.connect(ac.destination);
-      const now=ac.currentTime;g.gain.linearRampToValueAtTime(.16,now+.25);
+      g.gain.linearRampToValueAtTime(G,ac.currentTime+.25);
       [220,277.18,329.63,440].forEach((f,k)=>{const o=ac.createOscillator();o.type=k===3?'sine':'triangle';o.frequency.value=f;const og=ac.createGain();og.gain.value=k===3?.35:.55;o.connect(og);og.connect(g);o.start();oscs.push(o)});
     }catch(e){g=null}
     await new Promise(r=>setTimeout(r,1500));
     btn.textContent='Затихает…';
-    for(let k=1;k<=N;k++){
-      const v=.16*(1-k/N);
-      if(g){g.gain.cancelScheduledValues(ac.currentTime);g.gain.setValueAtTime(v,ac.currentTime)}
-      bars.forEach((b,j)=>{b.classList.toggle('now',j===k-1);if(j<k-1)b.classList.add('off')});
-      await new Promise(r=>setTimeout(r,180));
-    }
+    if(g){const c=new Float32Array(240);for(let k=0;k<c.length;k++)c[k]=G*amp(k/(c.length-1));
+      try{const t=ac.currentTime;g.gain.cancelScheduledValues(t);g.gain.setValueCurveAtTime(c,t,T)}catch(e){}}
+    const t0=performance.now();
+    await new Promise(done=>{(function frame(){const x=Math.min(1,(performance.now()-t0)/(T*1000)),k=Math.floor(x*N);
+      bars.forEach((b,j)=>{b.classList.toggle('off',j<k);b.classList.toggle('now',j===k)});
+      if(x<1)requestAnimationFrame(frame);else done()})()});
     bars.forEach(b=>{b.classList.add('off');b.classList.remove('now')});
-    oscs.forEach(o=>{try{o.stop()}catch(e){}});
+    oscs.forEach(o=>{try{o.stop(ac.currentTime+.05)}catch(e){}});
     btn.textContent='Музыка остановлена';
     setTimeout(()=>{bars.forEach(b=>b.classList.remove('off'));btn.textContent='▶ Послушать ещё раз';btn.disabled=false;busy=false},1600);
   });
@@ -810,6 +837,7 @@ if(!reduce&&!(window.CSS&&CSS.supports&&CSS.supports('animation-timeline: view()
    ['lib','Подборки','«Микс дня», «Недавние» и «Часто слушаю» плеер собирает сам.'],
    ['lib','Свои плейлисты','Создать, переименовать, удалить. Треки отмечаются галочками из общего списка.'],
    ['lib','Меню трека','Три точки, долгое нажатие на телефоне или правая кнопка мыши на компьютере.'],
+   ['lib','Из другого приложения','«Поделиться» → «Офлайн-плеер» на Android, «Открыть с помощью» на компьютере.'],
    ['lib','Своё название','Исправьте название или исполнителя, если в файле ошибка. Плеер это запомнит.'],
    ['lib','Своя обложка','Любая картинка из галереи вместо обложки трека.'],
    ['play','Слушать и Перемешать','Две большие кнопки запускают всю библиотеку подряд или вперемешку.'],
@@ -817,9 +845,9 @@ if(!reduce&&!(window.CSS&&CSS.supports&&CSS.supports('animation-timeline: view()
    ['play','Волна трека','Нажмите на волну в плеере, чтобы перемотать в нужное место.'],
    ['play','Перемешивание и повтор','Повтор всего списка или одного трека. Без повтора каждый трек звучит один раз.'],
    ['play','Очередь «Далее»','«Играть следующим» и «Добавить в очередь». Список видно по кнопке наверху плеера.'],
-   ['play','Жесты','Смахнуть обложку, смахнуть вниз, двойное касание по краям и в центре.'],
+   ['play','Жесты','Смахнуть обложку, плавно смахнуть плеер вниз к списку, двойное касание по краям и в центре.'],
    ['play','Продолжение с места','Плеер помнит трек и секунду. Кнопка на главном экране становится «Продолжить».'],
-   ['play','Таймер сна','10, 20, 30, 45, 60 минут или до конца трека. Музыка затихает плавно.'],
+   ['play','Таймер сна','Кнопка всегда под названием трека. 10–60 минут или до конца трека, в конце музыка очень плавно затихает.'],
    ['play','Скорость','От 0,5× до 2×, в меню «⋯» в плеере.'],
    ['play','Экран блокировки','Пауза, переключение и перемотка из шторки телефона и кнопками наушников.'],
    ['snd','Эквалайзер','10 полос от 31 Гц до 16 кГц, ±12 дБ. Режимы: Плоский, Бас, Вокал, Высокие, Рок.'],
